@@ -1,14 +1,149 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Dominio.DetalleVentas;
+using Dominio.EncabezadoVentas;
 using Dominio.Productos;
+using Dominio.Usuarios;
+using Dominio.Vendedores;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
-namespace Infraestructura.Data
+namespace Infraestructura.Entidades;
+
+public partial class ApplicationDbContext : DbContext
 {
-    internal class ApplicationDbContext
+    public ApplicationDbContext()
     {
     }
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<DetalleVenta> DetalleVentas { get; set; }
+
+    public virtual DbSet<EncabezadoVenta> EncabezadoVentas { get; set; }
+
+    public virtual DbSet<Producto> Productos { get; set; }
+
+    public virtual DbSet<Usuario> Usuarios { get; set; }
+
+    public virtual DbSet<Vendedor> Vendedores { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+// warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=localhost;Database=Test_24Nov2025_DB;User Id=sa;Password=G1lb3rt0;TrustServerCertificate=True");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<DetalleVenta>(entity =>
+        {
+            entity.HasKey(e => e.Idde).HasName("DetalleVentas_pk");
+
+            entity.Property(e => e.Idde).HasColumnName("idde");
+            entity.Property(e => e.Cantidad)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("cantidad");
+            entity.Property(e => e.Fecha)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("fecha");
+            entity.Property(e => e.Idpro).HasColumnName("idpro");
+            entity.Property(e => e.Idventa).HasColumnName("idventa");
+            entity.Property(e => e.Iva)
+                .HasColumnType("decimal(10, 4)")
+                .HasColumnName("iva");
+            entity.Property(e => e.Precio)
+                .HasColumnType("decimal(10, 4)")
+                .HasColumnName("precio");
+            entity.Property(e => e.Total)
+                .HasColumnType("decimal(10, 4)")
+                .HasColumnName("total");
+
+            entity.HasOne(d => d.IdproNavigation).WithMany(p => p.DetalleVenta)
+                .HasForeignKey(d => d.Idpro)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("DetalleVentas_Productos   _idpro_fk");
+
+            entity.HasOne(d => d.IdventaNavigation).WithMany(p => p.DetalleVenta)
+                .HasForeignKey(d => d.Idventa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("DetalleVentas_EncabezadoVentas_idventa_fk");
+        });
+
+        modelBuilder.Entity<EncabezadoVenta>(entity =>
+        {
+            entity.HasKey(e => e.Idventa).HasName("EncabezadoVentas_pk");
+
+            entity.Property(e => e.Idventa).HasColumnName("idventa");
+            entity.Property(e => e.Fecha)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("fecha");
+            entity.Property(e => e.Idvendedor).HasColumnName("idvendedor");
+            entity.Property(e => e.Total)
+                .HasColumnType("decimal(10, 4)")
+                .HasColumnName("total");
+
+            entity.HasOne(d => d.IdvendedorNavigation).WithMany(p => p.EncabezadoVenta)
+                .HasForeignKey(d => d.Idvendedor)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("EncabezadoVentas_Vendedores_idvendedor_fk");
+        });
+
+        modelBuilder.Entity<Producto>(entity =>
+        {
+            entity.HasKey(e => e.idpro).HasName("Productos_pk");
+
+            entity.Property(e => e.idpro).HasColumnName("idpro");
+            entity.Property(e => e.precio)
+                .HasColumnType("decimal(8, 2)")
+                .HasColumnName("precio");
+            entity.Property(e => e.producto)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("producto");
+        });
+
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.HasKey(e => e.Idus).HasName("Usuarios_pk");
+
+            entity.Property(e => e.Idus).HasColumnName("idus");
+            entity.Property(e => e.Clavealgoritmo)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("clavealgoritmo");
+            entity.Property(e => e.Clavehash)
+                .HasMaxLength(256)
+                .HasColumnName("clavehash");
+            entity.Property(e => e.Claveiteraciones).HasColumnName("claveiteraciones");
+            entity.Property(e => e.Clavesalt)
+                .HasMaxLength(256)
+                .HasColumnName("clavesalt");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Usuario1)
+                .HasMaxLength(12)
+                .IsUnicode(false)
+                .HasColumnName("usuario");
+        });
+
+        modelBuilder.Entity<Vendedor>(entity =>
+        {
+            entity.HasKey(e => e.Idvendedor).HasName("Vendedores_pk");
+
+            entity.Property(e => e.Idvendedor).HasColumnName("idvendedor");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("nombre");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

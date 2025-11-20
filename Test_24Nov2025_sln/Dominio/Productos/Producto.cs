@@ -4,22 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dominio.Common;
+using Dominio.DetalleVentas;
+
 //using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dominio.Productos
 {
-    public class Productos
+    public partial class Producto
     {
-        // Propiedades
         public int idpro { get; set; }
-        public string producto { get; set; }
-        public decimal precio { get; set; }
+
+        public string producto { get; set; } = null!;
+
+        public decimal? precio { get; set; }
+
+        public virtual ICollection<DetalleVenta> DetalleVenta { get; set; } = new List<DetalleVenta>();
 
         // Constructor privado para EF Core
-        private Productos() { }
+        private Producto() { }
 
         // Constructor público para crear instancias
-        public Productos(int idpro_, string producto_, decimal precio_)
+        public Producto(int idpro_, string producto_, decimal precio_)
         {
             // Validaciones de negocio
 
@@ -49,4 +54,5 @@ namespace Dominio.Productos
             precio = nuevoPrecio;
         }
     }
+
 }
