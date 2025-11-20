@@ -1,11 +1,102 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using System.Text;
+using Microsoft.OpenApi.Models;
+using Aplicacion.Servicios;
+using Aplicacion.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog for API project
+var apiLogPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Logs", "api-.log");
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.File(apiLogPath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7)
+    .CreateLogger();
+
+builder.Host.UseSerilog(Log.Logger);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+// Controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
+// App Services + Repository (SQL)
+var connStr = builder.Configuration.GetConnectionString("Default")!;
+//builder.Services.AddSingleton<IProductoRepository>(sp => new SqlProductoRepository(connStr));
+//builder.Services.AddSingleton<IProductosService, ProductosService>();
+
+//// File storage
+builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
+
+// Autenticación JWT (desde configuración)
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var issuer = jwtSection.GetValue<string>("Issuer") ?? string.Empty;
+var audience = jwtSection.GetValue<string>("Audience") ?? string.Empty;
+var secret = jwtSection.GetValue<string>("Secret") ?? string.Empty;
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opts =>
+    {
+        opts.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    // Política por rol/claim
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin")); // o .RequireClaim("permission", "x")
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Configuración de seguridad JWT
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Description = "Autenticación JWT. En Authorize ingrese SOLO el token (sin 'Bearer')."
+    });
+
+    // Requerimiento de seguridad global
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -17,7 +108,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
+app.UseSerilogRequestLogging();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
