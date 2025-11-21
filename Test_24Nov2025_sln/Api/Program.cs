@@ -5,6 +5,10 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Aplicacion.Servicios;
 using Aplicacion.Interfaces;
+using Dominio.Productos;
+using Infraestructura.Data;
+using Infraestructura.Data.Productos;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,13 +31,15 @@ builder.Services.AddControllers()
         o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
-// App Services + Repository (SQL)
+// Servicios + Repositorios
 var connStr = builder.Configuration.GetConnectionString("Default")!;
-//builder.Services.AddSingleton<IProductoRepository>(sp => new SqlProductoRepository(connStr));
-//builder.Services.AddSingleton<IProductosService, ProductosService>();
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connStr));
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IProductosService, ProductosService>();
 
 //// File storage
-builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
+// var uploadsPath = Path.Combine(builder.Environment.WebRootPath, "uploads", "productos");
+// builder.Services.AddSingleton<IFileStorageService>(sp => new FileStorageService(uploadsPath));
 
 // Autenticación JWT (desde configuración)
 var jwtSection = builder.Configuration.GetSection("Jwt");

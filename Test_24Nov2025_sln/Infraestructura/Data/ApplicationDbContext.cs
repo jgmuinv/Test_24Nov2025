@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 
-namespace Infraestructura.Entidades;
+namespace Infraestructura.Data;
 
 public partial class ApplicationDbContext : DbContext
 {
@@ -107,25 +107,25 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.HasKey(e => e.Idus).HasName("Usuarios_pk");
+            entity.HasKey(e => e.idus).HasName("Usuarios_pk");
 
-            entity.Property(e => e.Idus).HasColumnName("idus");
-            entity.Property(e => e.Clavealgoritmo)
+            entity.Property(e => e.idus).HasColumnName("idus");
+            entity.Property(e => e.clavealgoritmo)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("clavealgoritmo");
-            entity.Property(e => e.Clavehash)
+            entity.Property(e => e.clavehash)
                 .HasMaxLength(256)
                 .HasColumnName("clavehash");
-            entity.Property(e => e.Claveiteraciones).HasColumnName("claveiteraciones");
-            entity.Property(e => e.Clavesalt)
+            entity.Property(e => e.claveiteraciones).HasColumnName("claveiteraciones");
+            entity.Property(e => e.clavesalt)
                 .HasMaxLength(256)
                 .HasColumnName("clavesalt");
-            entity.Property(e => e.Nombre)
+            entity.Property(e => e.nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("nombre");
-            entity.Property(e => e.Usuario1)
+            entity.Property(e => e.usuario)
                 .HasMaxLength(12)
                 .IsUnicode(false)
                 .HasColumnName("usuario");

@@ -9,10 +9,6 @@ public record PaginadoDto<T>
     public int TotalPaginas { get; init; }
     public bool TienePaginaAnterior => PaginaActual > 1;
     public bool TienePaginaSiguiente => PaginaActual < TotalPaginas;
-    // public int PrimeraPagina => 1;
-    // public int UltimaPagina => TotalPaginas;
-    // public int IndicePrimerElemento => TotalRegistros == 0 ? 0 : ((PaginaActual - 1) * TamanioPagina) + 1;
-    // public int IndiceUltimoElemento => Math.Min(PaginaActual * TamanioPagina, TotalRegistros);
     
     // Constructor vacío para serialización
     public PaginadoDto() { }

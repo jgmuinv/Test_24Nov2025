@@ -5,17 +5,17 @@ namespace Dominio.Usuarios;
 
 public partial class Usuario
 {
-    public int Idus { get; set; }
+    public int idus { get; set; }
 
-    public string Usuario1 { get; set; } = null!;
+    public string usuario { get; set; } = null!;
 
-    public string Nombre { get; set; } = null!;
+    public string nombre { get; set; } = null!;
 
-    public byte[] Clavehash { get; set; } = null!;
+    public byte[] clavehash { get; set; } = null!;
 
-    public byte[]? Clavesalt { get; set; }
+    public byte[]? clavesalt { get; set; }
 
-    public string? Clavealgoritmo { get; set; }
+    public string? clavealgoritmo { get; set; }
 
-    public int? Claveiteraciones { get; set; }
+    public int? claveiteraciones { get; set; }
 }
