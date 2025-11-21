@@ -96,13 +96,15 @@ public class ProductoRepository : IProductoRepository
     // Búsqueda con filtros
     // ==========================================
 
-    public async Task<PaginadoDto<Producto>> BuscarPaginadoAsync(int? idpro,
+    public async Task<PaginadoDto<Producto?>> ListarPaginadoAsync(int? idpro,
         string? nombre,
         int paginaActual,
         int registrosPorPagina,
         CancellationToken ct = default)
     {
-        var query = _context.Productos.AsNoTracking();
+        var query = _context.Productos            
+            .AsNoTracking()
+            .AsQueryable();
 
         // Aplicar filtros
 
@@ -127,8 +129,9 @@ public class ProductoRepository : IProductoRepository
             .Skip(registrosPorPagina * (paginaActual - 1))
             .Take(registrosPorPagina)
             .ToListAsync(ct);
+            
 
-        return new PaginadoDto<Producto>(items, total, paginaActual, registrosPorPagina);
+        return new PaginadoDto<Producto?>(items, total, paginaActual, registrosPorPagina);
     }
 
     // ==========================================

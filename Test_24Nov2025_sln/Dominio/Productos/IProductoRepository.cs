@@ -24,7 +24,8 @@ public interface IProductoRepository
     // ==========================================
     // Búsqueda con Filtros
     // ==========================================
-    Task<PaginadoDto<Producto>> BuscarPaginadoAsync(int? idpro,
+    Task<PaginadoDto<Producto?>> ListarPaginadoAsync(
+        int? idpro,
         string? nombre,
         int paginaActual,
         int registrosPorPagina,

@@ -38,6 +38,28 @@ public class ProductosController : ControllerBase
             return Problem("Error interno al listar productos", statusCode: StatusCodes.Status500InternalServerError);
         }
     }
+    
+    // ============================
+    // GET: /Productos/ListarPaginado
+    // ============================
+    [HttpGet]
+    public async Task<ActionResult<ResultadoDto<PaginadoDto<ProductoDto?>>>> ListarPaginado(int? idpro, string? nombre, int paginaActual, int registrosPorPagina, CancellationToken ct)
+    {
+        try
+        {
+            var lista = await _service.ListarPaginadoAsync(idpro, nombre,paginaActual,registrosPorPagina, ct);
+            return Ok(lista);
+        }
+        catch (DomainException de)
+        {
+            return ResultadoDto<PaginadoDto<ProductoDto?>>.Failure(de.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al listar productos");
+            return Problem("Error interno al listar productos", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
 
     // ============================
     // POST: /Productos/Crear

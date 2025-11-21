@@ -43,7 +43,40 @@ public class ProductosService : IProductosService
         {
             throw new ApplicationException("Error al listar los productos", ex);
         }
+    }
+    
+    // ==========================================
+    // Listar Paginado con Filtros
+    // ==========================================
+    public async Task<ResultadoDto<PaginadoDto<ProductoDto?>>> ListarPaginadoAsync(int? idpro, string? nombre, int paginaActual, int registrosPorPagina, CancellationToken ct = default)
+    {
+        try
+        {
+            // Aplica validaciones de negocio
+            if (paginaActual <= 0) throw new DomainException("La página actual debe ser mayor a cero");
+            
+            if (registrosPorPagina <= 0) throw new DomainException("La la cantidad de registros por página debe ser mayor a cero");
+            
+            // Obtener todos los productos del repositorio
+            var productos = await _repo.ListarPaginadoAsync(idpro, nombre, paginaActual, registrosPorPagina, ct);
 
+            // Mapear a DTOs
+            var productosDto = productos.Items
+                .Select(p => MapearADto(p))
+                .ToList();
+            var paginado = new PaginadoDto<ProductoDto?>(productosDto, productos.TotalRegistros, productos.PaginaActual,
+                productos.TamanioPagina);
+                
+            return ResultadoDto<PaginadoDto<ProductoDto?>>.Success(paginado);
+        }
+        catch (DomainException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("Error al listar los productos", ex);
+        }
     }
 
     // ==========================================
