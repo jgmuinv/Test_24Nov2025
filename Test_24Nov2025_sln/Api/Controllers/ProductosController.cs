@@ -25,17 +25,21 @@ public class ProductosController : ControllerBase
     // GET: /Productos/Listar
     // ============================
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<ProductoDto>>> Listar(int? idpro, string? Nombre, CancellationToken ct)
+    public async Task<ActionResult<ResultadoDto<IReadOnlyList<ProductoDto?>>>> Listar(int? idpro, string? Nombre, CancellationToken ct)
     {
         try
         {
             var lista = await _service.ListarAsync(idpro, Nombre, ct);
             return Ok(lista);
         }
+        catch (DomainException de)
+        {
+            return BadRequest(ResultadoDto<IReadOnlyList<ProductoDto?>>.Failure(de.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al listar productos");
-            return Problem("Error interno al listar productos", statusCode: StatusCodes.Status500InternalServerError);
+            return StatusCode(500, ResultadoDto<IReadOnlyList<ProductoDto?>>.Failure("Error interno al listar productos"));
         }
     }
     
@@ -52,12 +56,12 @@ public class ProductosController : ControllerBase
         }
         catch (DomainException de)
         {
-            return ResultadoDto<PaginadoDto<ProductoDto?>>.Failure(de.Message);
+            return BadRequest(ResultadoDto<PaginadoDto<ProductoDto?>>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al listar productos");
-            return Problem("Error interno al listar productos", statusCode: StatusCodes.Status500InternalServerError);
+            return StatusCode(500, ResultadoDto<PaginadoDto<ProductoDto?>>.Failure("Error interno al listar productos"));
         }
     }
 
@@ -85,12 +89,12 @@ public class ProductosController : ControllerBase
         }
         catch (DomainException de)
         {
-            return ResultadoDto<ProductoDto?>.Failure(de.Message);
+            return BadRequest(ResultadoDto<ProductoDto?>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al crear producto");
-            return Problem("Error interno al crear el producto", statusCode: StatusCodes.Status500InternalServerError);
+            return StatusCode(500,ResultadoDto<ProductoDto?>.Failure("Error interno al crear el producto"));
         }
     }
 
@@ -125,13 +129,12 @@ public class ProductosController : ControllerBase
         }
         catch (DomainException de)
         {
-            return ResultadoDto<ProductoDto?>.Failure(de.Message);
+            return BadRequest(ResultadoDto<ProductoDto?>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al actualizar producto {Id}", id);
-            return ResultadoDto<ProductoDto?>.Failure(
-                $"Error interno al actualizar el producto. statusCode: {StatusCodes.Status500InternalServerError}");
+            return StatusCode(500,ResultadoDto<ProductoDto?>.Failure("Error interno al actualizar el producto"));
         }
     }
 
@@ -150,12 +153,12 @@ public class ProductosController : ControllerBase
         }
         catch (DomainException de)
         {
-            return ResultadoDto<bool?>.Failure(de.Message);
+            return BadRequest(ResultadoDto<bool?>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al eliminar producto {Id}", id);
-            return ResultadoDto<bool?>.Failure("Error interno al eliminar el producto");
+            return StatusCode(500,ResultadoDto<bool?>.Failure("Error interno al eliminar el producto"));
         }
     }
 }

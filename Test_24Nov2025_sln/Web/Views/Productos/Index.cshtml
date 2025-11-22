@@ -1,0 +1,55 @@
+﻿@model Web.Models.ProductosFiltroPaginadoViewModel
+
+@{
+    ViewData["Title"] = "Productos";
+}
+<h2>Productos</h2>
+@if (TempData["msg"] != null) {
+    <div class="alert alert-info">@TempData["msg"]</div>
+}
+<form asp-action="Index" method="post" class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label asp-for="IdPro" class="form-label"></label>
+        <input asp-for="IdPro" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control"/>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+        <a asp-action="Create" class="btn btn-success">Nuevo</a>
+    </div>
+</form>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th class="col-3">Código</th>
+        <th class="col-4">Nombre</th>
+        <th class="col-2">Precio</th>
+        <th class="col-3 text-center">Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model?.Resultados?.Items != null)
+    {
+        @foreach (var p in Model.Resultados.Items)
+        {
+            if (p == null) continue;
+            <tr>
+                <td>@p.Id</td>
+                <td>@p.Nombre</td>
+                <td>@p.Precio.ToString("C")</td>
+                <td class="text-center">
+                    <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-info">Ver</a>
+                    <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-primary">Editar</a>
+                    <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?');">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }        
+    }
+
+    </tbody>
+</table>
