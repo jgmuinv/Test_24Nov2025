@@ -27,6 +27,8 @@ public class EncabezadoVentaRepository : IEncabezadoVentaRepository
     {
         var query = _context.EncabezadoVentas
             .Include(dv=>dv.DetalleVenta)
+            .ThenInclude(p=>p.Productos)
+            .Include(u =>u.Usuario)
             .AsNoTracking()
             .AsQueryable();
         
@@ -74,7 +76,8 @@ public class EncabezadoVentaRepository : IEncabezadoVentaRepository
     {
         var query = _context.EncabezadoVentas            
             .Include(dv=>dv.DetalleVenta)
-            .AsNoTracking()
+            .ThenInclude(p=>p.Productos)
+            .Include(u =>u.Usuario)            .AsNoTracking()
             .AsQueryable();
 
         // Aplicar filtros
@@ -114,8 +117,9 @@ public class EncabezadoVentaRepository : IEncabezadoVentaRepository
     public async Task<EncabezadoVenta?> ObtenerConDetallesVentaAsync(int id, CancellationToken ct = default)
     {
         return await _context.EncabezadoVentas
-            .Include(dv => dv.DetalleVenta)
-            .ThenInclude(dv => dv.Productos)
+            .Include(dv=>dv.DetalleVenta)
+            .ThenInclude(p=>p.Productos)
+            .Include(u =>u.Usuario)
             //.ThenInclude(dv => dv.EncVenta)
             //.AsNoTracking()
             .FirstOrDefaultAsync(p => p.Idventa == id, ct);

@@ -10,5 +10,5 @@ public partial class Vendedor
 
     public string Nombre { get; set; } = null!;
 
-    public virtual ICollection<EncabezadoVenta> EncabezadoVenta { get; set; } = new List<EncabezadoVenta>();
+    //public virtual ICollection<EncabezadoVenta> EncabezadoVenta { get; set; } = new List<EncabezadoVenta>();
 }

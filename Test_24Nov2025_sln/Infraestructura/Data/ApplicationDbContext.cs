@@ -28,7 +28,7 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    public virtual DbSet<Vendedor> Vendedores { get; set; }
+    //public virtual DbSet<Vendedor> Vendedores { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 // warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -85,10 +85,14 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("decimal(10, 4)")
                 .HasColumnName("total");
 
-            entity.HasOne(d => d.IdvendedorNavigation).WithMany(p => p.EncabezadoVenta)
-                .HasForeignKey(d => d.Idvendedor)
+            // RELACIÓN CORRECTA:
+            // EncabezadoVentas.idvendedor (FK) -> Usuarios.idus (PK)
+            entity.HasOne(e => e.Usuario)
+                .WithMany(u => u.EncabezadoVentas)
+                .HasForeignKey(e => e.Idvendedor)   // <--- IMPORTANTE
+                .HasPrincipalKey(u => u.idus)       // PK de Usuario
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("EncabezadoVentas_Vendedores_idvendedor_fk");
+                .HasConstraintName("EncabezadoVentas_Usuarios_idus_fk");
         });
 
         modelBuilder.Entity<Producto>(entity =>
@@ -131,16 +135,16 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("usuario");
         });
 
-        modelBuilder.Entity<Vendedor>(entity =>
-        {
-            entity.HasKey(e => e.Idvendedor).HasName("Vendedores_pk");
-
-            entity.Property(e => e.Idvendedor).HasColumnName("idvendedor");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("nombre");
-        });
+        // modelBuilder.Entity<Vendedor>(entity =>
+        // {
+        //     entity.HasKey(e => e.Idvendedor).HasName("Vendedores_pk");
+        //
+        //     entity.Property(e => e.Idvendedor).HasColumnName("idvendedor");
+        //     entity.Property(e => e.Nombre)
+        //         .HasMaxLength(100)
+        //         .IsUnicode(false)
+        //         .HasColumnName("nombre");
+        // });
 
         OnModelCreatingPartial(modelBuilder);
     }

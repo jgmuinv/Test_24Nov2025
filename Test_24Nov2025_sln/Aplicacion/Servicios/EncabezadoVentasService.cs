@@ -89,7 +89,7 @@ public class EncabezadoVentasService : IEncabezadoVentasService
     {
         try
         {
-            var encabezadoVenta = new EncabezadoVenta(dto.Idvendedor, dto.Total);
+            var encabezadoVenta = new EncabezadoVenta(dto.Idvendedor);
             await _repo.CrearAsync(encabezadoVenta, ct);
 
             return ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(encabezadoVenta));
@@ -120,17 +120,28 @@ public class EncabezadoVentasService : IEncabezadoVentasService
                 return ResultadoDto<EncabezadoVentaDto?>.Failure("No existe el registro en la base de datos");
             }
 
-            if (dto.Total != objBd.DetalleVenta.Sum(venta => venta.Total))
+            // if (dto.Total != objBd.DetalleVenta.Sum(venta => venta.Total))
+            // {
+            //     return ResultadoDto<EncabezadoVentaDto?>.Failure("El total no coincide con el detalle de la venta");
+            // }
+
+            // if (objBd.Total != dto.Total)
+            // {
+            //     var resultadoPrecio = objBd.ActualizarTotal(dto.Total);
+            //     if (!resultadoPrecio.Exitoso)
+            //     {
+            //         return resultadoPrecio;
+            //     }                
+            // }
+
+            var resultadoVendedor= objBd.ActualizarVendedor(dto.Idvendedor);
+            if (!resultadoVendedor.Exitoso)
             {
-                return ResultadoDto<EncabezadoVentaDto?>.Failure("El total no coincide con el detalle de la venta");
-            }
-            
-            var resultadoPrecio = objBd.ActualizarTotal(dto.Total);
-            if (!resultadoPrecio.Exitoso)
-            {
-                return resultadoPrecio;
+                return resultadoVendedor;
             }
 
+            if (dto.DetalleVenta != null) objBd.Total = dto.DetalleVenta.Sum(venta => venta.Total);
+            
             await _repo.ActualizarAsync(objBd, ct);
 
             return ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(objBd));

@@ -73,15 +73,16 @@ public class EncabezadoVentasController : ControllerBase
     public async Task<ActionResult<ResultadoDto<EncabezadoVentaDto?>>> Crear([FromBody] CrearEncabezadoVentaRequest request, CancellationToken ct)
     {
         if (!ModelState.IsValid)
-            return ValidationProblem(ModelState);
-
+            return 
+        ResultadoDto<EncabezadoVentaDto?>.Failure(ModelState.Values.SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage).First());
         try
         {
             var dto = new CrearEncabezadoVentaDto
             {
                 Idvendedor = request.IdVendedor,
                 Fecha = request.Fecha,
-                Total = request.Total
+                DetalleVenta = request.DetalleVenta
             };
 
             var creado = await _service.CrearAsync(dto, ct);
@@ -120,8 +121,7 @@ public class EncabezadoVentasController : ControllerBase
             var dto = new EditarEncabezadoVentaDto
             {
                 Idventa = request.IdVenta,
-                Idvendedor = request.IdVendedor,
-                Total = request.Total
+                Idvendedor = request.IdVendedor
             };
 
             var actualizado = await _service.EditarAsync(id, dto, ct);
