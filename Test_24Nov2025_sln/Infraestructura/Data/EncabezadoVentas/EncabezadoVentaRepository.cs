@@ -4,11 +4,11 @@ using Dominio.EncabezadoVentas;
 
 namespace Infraestructura.Data.EncabezadoVentas;
 
-public class EncabezadoVentasRepository : IEncabezadoVentaRepository
+public class EncabezadoVentaRepository : IEncabezadoVentaRepository
 {
     private readonly ApplicationDbContext _context;
 
-    public EncabezadoVentasRepository(ApplicationDbContext context)
+    public EncabezadoVentaRepository(ApplicationDbContext context)
     {
         _context = context;
     }

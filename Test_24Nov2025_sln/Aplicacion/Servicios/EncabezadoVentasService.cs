@@ -10,6 +10,11 @@ public class EncabezadoVentasService : IEncabezadoVentasService
 {
     private readonly IEncabezadoVentaRepository _repo;
 
+    public EncabezadoVentasService(IEncabezadoVentaRepository repo)
+    {
+        _repo = repo;
+    }
+    
     // ==========================================
     // Listar con Filtros
     // ==========================================

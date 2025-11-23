@@ -10,7 +10,7 @@ public class CrearEncabezadoVentaRequest
     public int IdVendedor { get; set; }
     
     [Required(ErrorMessage = "El total es obligatorio")]
-    [Range(0.01, 99999999.99, ErrorMessage = "El precio debe estar entre 0.01 y 99,999,999.99")]
+    [Range(0.00, 99999999.99, ErrorMessage = "El precio debe estar entre 0.00 y 99,999,999.99")]
 
     public decimal Total { get; set; }
     

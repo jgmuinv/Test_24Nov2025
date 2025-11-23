@@ -5,8 +5,10 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Aplicacion.Servicios;
 using Aplicacion.Interfaces;
+using Dominio.EncabezadoVentas;
 using Dominio.Productos;
 using Infraestructura.Data;
+using Infraestructura.Data.EncabezadoVentas;
 using Infraestructura.Data.Productos;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,9 +36,12 @@ builder.Services.AddControllers()
 // Servicios + Repositorios
 var connStr = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connStr));
+
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IProductosService, ProductosService>();
 
+builder.Services.AddScoped<IEncabezadoVentaRepository, EncabezadoVentaRepository>();
+builder.Services.AddScoped<IEncabezadoVentasService, EncabezadoVentasService>();
 //// File storage
 // var uploadsPath = Path.Combine(builder.Environment.WebRootPath, "uploads", "productos");
 // builder.Services.AddSingleton<IFileStorageService>(sp => new FileStorageService(uploadsPath));
