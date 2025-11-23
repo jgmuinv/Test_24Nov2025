@@ -1,11 +1,10 @@
-﻿@model Contratos.Productos.ActualizarProductoRequest
+﻿@model Contratos.Productos.CrearProductoRequest
 
 @{
-    ViewData["Title"] = "Editar producto";
+    ViewData["Title"] = "Crear producto";
 }
-
-<h1>Editar producto</h1>
-<form asp-action="Edit" method="post">
+<h1>Crear producto</h1>
+<form asp-action="Create" method="post">
     <hr/>
     @* Si hay un mensaje lo muestra *@
     @if (TempData["Mensaje"] != null) {
@@ -17,13 +16,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group mb-4">
-                    <label asp-for="Id" class="control-label fw-bold"></label>
-                    <input asp-for="Id" readonly="readonly" class="form-control"/>
-                    <span asp-validation-for="Id" class="text-danger"></span>
-                </div>
                 <div class="form-group mb-4">
                     <label asp-for="Nombre" class="control-label fw-bold"></label>
                     <input asp-for="Nombre" class="form-control"/>
@@ -31,7 +24,12 @@
                 </div>
                 <div class="form-group mb-4">
                     <label asp-for="Precio" class="control-label fw-bold"></label>
-                    <input asp-for="Precio" class="form-control"  type="number" />
+                    <input asp-for="Precio" class="form-control"  type="number" 
+                           step="0.01" 
+                           min="0.01" 
+                           max="999999.99"
+                           oninvalid="this.setCustomValidity('Debe ingresar un valor múltiplo de 0.01 (por ejemplo 0.01, 0.02, 1.25, etc.)')"
+                           oninput="this.setCustomValidity('')"/>
                     <span asp-validation-for="Precio" class="text-danger"></span>
                 </div>
             </div>
@@ -41,10 +39,5 @@
     <div class="form-group mb-4">
         <input type="submit" value="Guardar" class="btn btn-primary"/>
         @Html.ActionLink("Regresar", "Index", null, null, new {@class = "btn btn-secondary"})
-    </div>    
+    </div>   
 </form>
-
-
-@section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-}

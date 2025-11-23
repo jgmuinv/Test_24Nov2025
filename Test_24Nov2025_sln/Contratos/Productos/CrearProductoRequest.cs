@@ -10,4 +10,8 @@ public record CrearProductoRequest
     [Required(ErrorMessage = "El precio es obligatorio")]
     [Range(0.01, 999999.99, ErrorMessage = "El precio debe estar entre 0.01 y 999,999.99")]
     public decimal Precio { get; init; }
+    
+    // Mensajes de notificación
+    public string? Mensaje { get; set; }
+    public string? TipoMensaje { get; set; }
 }

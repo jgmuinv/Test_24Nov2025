@@ -60,12 +60,12 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("decimal(10, 4)")
                 .HasColumnName("total");
 
-            entity.HasOne(d => d.IdproNavigation).WithMany(p => p.DetalleVenta)
+            entity.HasOne(d => d.Productos).WithMany(p => p.DetalleVenta)
                 .HasForeignKey(d => d.Idpro)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("DetalleVentas_Productos   _idpro_fk");
 
-            entity.HasOne(d => d.IdventaNavigation).WithMany(p => p.DetalleVenta)
+            entity.HasOne(d => d.EncVenta).WithMany(p => p.DetalleVenta)
                 .HasForeignKey(d => d.Idventa)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("DetalleVentas_EncabezadoVentas_idventa_fk");

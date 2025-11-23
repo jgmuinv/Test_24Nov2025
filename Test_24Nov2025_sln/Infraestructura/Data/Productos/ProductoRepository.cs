@@ -74,7 +74,6 @@ public class ProductoRepository : IProductoRepository
 
     // ==========================================
     // Métodos Adicionales para Paginación y Búsqueda
-    // (usados por ProductosService)
     // ==========================================
 
     public async Task<int> ContarTodos(CancellationToken ct = default)
@@ -163,7 +162,7 @@ public class ProductoRepository : IProductoRepository
     {
         return await _context.Productos
             .Include(p => p.DetalleVenta)
-                .ThenInclude(dv => dv.IdventaNavigation)
+                .ThenInclude(dv => dv.EncVenta)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.idpro == id, ct);
     }

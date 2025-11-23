@@ -1,10 +1,10 @@
-﻿using Contratos.General;
+﻿// OBJETIVO: Gestionar la lógica de negocio en los productos 
+using Contratos.General;
 using Contratos.Productos;
 namespace Aplicacion.Interfaces;
 
 public interface IProductosService
 {
-    // OBJETIVO: Gestionar la lógica de negocio en los productos 
     
     Task<ResultadoDto<IReadOnlyList<ProductoDto?>>> ListarAsync(int? idpro, string? nombre, CancellationToken ct = default);
 

@@ -4,23 +4,25 @@
     ViewData["Title"] = "Ver producto";
 }
 <h2>Ver producto</h2>
-
-<div class="row">
-    <div class="col-md-4">
-        <div>
-            <b>Código:</b> @Html.DisplayFor(model => model.Id)
+<hr />
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group mb-4">
+                <b>Código:</b> @Html.DisplayFor(model => model.Id)
         </div>
-        <div>
-            <b>Nombre: </b>@Html.DisplayFor(model => model.Nombre)
+            <div class="form-group mb-4">
+                <b>Nombre: </b>@Html.DisplayFor(model => model.Nombre)
         </div>
-        <div >
-            <b>Precio: </b>@Html.DisplayFor(model => model.Precio)
+            <div class="form-group mb-4">
+                <b>Precio: </b>@Html.DisplayFor(model => model.Precio)
         </div>
-    </div>
+        </div>
+    </div>    
 </div>
-
+<hr />
 <div>
-    @Html.ActionLink("Regresar","Index",null,null,new {@class="btn btn-primary"})
+    @Html.ActionLink("Regresar","Index",null,null,new {@class="btn btn-secondary"})
 </div>
 
 @section Scripts {

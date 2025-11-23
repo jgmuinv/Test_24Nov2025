@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Contratos.General;
+﻿using Contratos.General;
 using Contratos.Productos;
 using Dominio.Common;
 using Dominio.DetalleVentas;
-
-//using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dominio.Productos
 {
@@ -31,9 +24,12 @@ namespace Dominio.Productos
             // Validaciones de negocio
             if (string.IsNullOrWhiteSpace(producto_))
                 throw new DomainException("El nombre es obligatorio");
+            
+            if (producto_.Length > 100)
+                throw new DomainException("El nombre no puede exceder 100 caracteres");
 
-            if (precio_ <= 0)
-                throw new DomainException("El precio debe ser positivo");
+            if (precio_ <= 0 || precio_ > (decimal) 999999.99)
+                throw new DomainException("El precio debe ser positivo y menor a 999,999.99");
 
             // Asignación de valores a las propiedades si pasa validaciones
             this.producto = producto_;
@@ -49,8 +45,8 @@ namespace Dominio.Productos
         // Métodos que encapsulan reglas de negocio más complejas
         public ResultadoDto<ProductoDto?> ActualizarPrecio(decimal nuevoPrecio)
         {
-            if (nuevoPrecio <= 0)
-                return ResultadoDto<ProductoDto?>.Failure("El precio debe ser positivo");
+            if (nuevoPrecio <= 0 || nuevoPrecio > (decimal) 999999.99)
+                return ResultadoDto<ProductoDto?>.Failure("El precio debe ser positivo y menor a 999,999.99");
 
             // Regla de negocio específica
             if (precio.HasValue && nuevoPrecio < precio * 0.5m)

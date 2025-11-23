@@ -22,9 +22,10 @@
         <label asp-for="Nombre" class="form-label"></label>
         <input asp-for="Nombre" class="form-control"/>
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
-        <a asp-action="Create" class="btn btn-success">Nuevo</a>
+    <div class="col-md-2 d-flex gap-2 align-items-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        @Html.ActionLink("Limpiar", "Index","Productos", null,new { @class = "btn btn-secondary" })
+        @Html.ActionLink("Nuevo","Create","Productos",null,new{@class="btn btn-success"})
     </div>
 </form>
 <table class="table table-striped">

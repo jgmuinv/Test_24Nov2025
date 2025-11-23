@@ -228,7 +228,8 @@ public class ProductosController : Controller
             if (!response.IsSuccessStatusCode)
             {
                 var cuerpo = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError(string.Empty, $"No se pudo crear el producto. Detalle técnico: {cuerpo}");
+                model.Mensaje = $"No se pudo crear el producto. Detalle técnico: {cuerpo}";
+                model.TipoMensaje = "danger";
                 return View(model);
             }
 
@@ -237,21 +238,21 @@ public class ProductosController : Controller
 
             if (resultado == null)
             {
-                ModelState.AddModelError(string.Empty, "Respuesta inválida del servidor al crear el producto.");
+                model.Mensaje = "Respuesta inválida del servidor al crear el producto.";
+                model.TipoMensaje = "danger";
                 return View(model);
             }
 
             if (!resultado.Exitoso)
             {
-                foreach (var error in resultado.Errores)
-                {
-                    ModelState.AddModelError(string.Empty, error);
-                }
+                model.Mensaje = string.Join(", ", resultado.Errores);
+                model.TipoMensaje = "danger";
 
-                return View(model); // errores de dominio mostrados al usuario
+                return View(model); // Errores de dominio mostrados al usuario
             }
 
-            TempData["Exito"] = "Producto creado correctamente.";
+            TempData["Mensaje"] = "Producto creado correctamente.";
+            TempData["TipoMensaje"] = "success";
             return RedirectToAction(nameof(Index));
         }
         catch (HttpRequestException ex)
@@ -373,7 +374,8 @@ public class ProductosController : Controller
                 return View(model); // errores de dominio
             }
 
-            TempData["Exito"] = "Producto actualizado correctamente.";
+            TempData["Mensaje"] = "Producto actualizado correctamente.";
+            TempData["TipoMensaje"] = "success";
             return RedirectToAction(nameof(Index));
         }
         catch (HttpRequestException ex)
@@ -403,7 +405,8 @@ public class ProductosController : Controller
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "No se pudo obtener el producto para eliminar.";
+                TempData["Mensaje"] = "No se pudo obtener el producto para eliminar.";
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -412,7 +415,8 @@ public class ProductosController : Controller
 
             if (resultado == null || !resultado.Exitoso || resultado.Datos == null)
             {
-                TempData["Error"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el producto." });
+                TempData["Mensaje"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el producto." });
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -420,6 +424,7 @@ public class ProductosController : Controller
             if (productoDto == null)
             {
                 TempData["Error"] = "No se encontró el producto.";
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 

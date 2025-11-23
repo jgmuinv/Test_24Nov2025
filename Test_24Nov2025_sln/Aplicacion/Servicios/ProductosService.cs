@@ -80,7 +80,7 @@ public class ProductosService : IProductosService
     }
 
     // ==========================================
-    // Crear Producto
+    // Crear registro
     // ==========================================
     public async Task<ResultadoDto<ProductoDto?>> CrearAsync(CrearProductoDto dto, CancellationToken ct = default)
     {
@@ -123,7 +123,7 @@ public class ProductosService : IProductosService
 
             if (producto == null)
             {
-                return null; // O lanzar excepción según tu preferencia
+                return ResultadoDto<ProductoDto?>.Failure("No existe un producto con ese código");
             }
 
             // Validar que no exista otro producto con el mismo nombre

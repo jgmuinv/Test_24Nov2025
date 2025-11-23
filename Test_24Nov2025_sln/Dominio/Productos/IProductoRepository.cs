@@ -20,6 +20,7 @@ public interface IProductoRepository
     // ==========================================
     Task<int> ContarTodos(CancellationToken ct = default);
     Task<List<Producto>> ObtenerPaginado(int saltar, int tomar, CancellationToken ct = default);
+    
 
     // ==========================================
     // Búsqueda con Filtros
@@ -39,12 +40,12 @@ public interface IProductoRepository
     Task<bool> ExisteNombreAsync(string nombre, int idExcluir, CancellationToken ct = default);
 
     // ==========================================
-    // Con Relaciones (opcional)
+    // Con Relaciones
     // ==========================================
     Task<Producto?> ObtenerConDetallesVentaAsync(int id, CancellationToken ct = default);
 
     // ==========================================
-    // Operaciones en Lote (opcional)
+    // Operaciones en Lote
     // ==========================================
     Task<List<Producto>> ObtenerPorIdsAsync(List<int> ids, CancellationToken ct = default);
     Task ActualizarPreciosAsync(Dictionary<int, decimal> cambiosPrecios, CancellationToken ct = default);
