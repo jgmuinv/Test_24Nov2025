@@ -4,9 +4,15 @@
     ViewData["Title"] = "Productos";
 }
 <h2>Productos</h2>
-@if (TempData["msg"] != null) {
-    <div class="alert alert-info">@TempData["msg"]</div>
+
+@* Si hay un mensaje lo muestra *@
+@if (TempData["Mensaje"] != null) {
+    <div class="alert alert-@TempData["TipoMensaje"]">@TempData["Mensaje"]</div>
 }
+@if (Model.Mensaje != null) {
+    <div class="alert alert-@Model.TipoMensaje">@Model.Mensaje</div>
+}
+
 <form asp-action="Index" method="post" class="row g-3 mb-3">
     <div class="col-md-4">
         <label asp-for="IdPro" class="form-label"></label>
@@ -39,7 +45,7 @@
             <tr>
                 <td>@p.Id</td>
                 <td>@p.Nombre</td>
-                <td>@p.Precio.ToString("C")</td>
+                <td>@Html.DisplayFor(_ => p.Precio)</td>
                 <td class="text-center">
                     <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-info">Ver</a>
                     <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-primary">Editar</a>

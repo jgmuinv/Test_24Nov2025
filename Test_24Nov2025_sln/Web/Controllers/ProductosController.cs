@@ -111,6 +111,8 @@ public class ProductosController : Controller
             };
 
             obj.Resultados = paginado;
+            obj.Mensaje = "Filtrado realizado correctamente.";
+            obj.TipoMensaje = "success";
             return View(obj);
         }
         catch (HttpRequestException ex)

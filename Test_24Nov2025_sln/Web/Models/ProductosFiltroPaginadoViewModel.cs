@@ -15,6 +15,7 @@ public class ProductosFiltroPaginadoViewModel
 
     // Mensajes de notificación
     public string? Mensaje { get; set; }
+    public string? TipoMensaje { get; set; }
     
     // Resultados
     public PaginadoDto<ProductoDto> Resultados { get; set; } =
