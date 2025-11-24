@@ -1,6 +1,8 @@
 ﻿using Aplicacion.Interfaces;
+using Contratos.DetalleVentas;
 using Contratos.EncabezadoVentas;
 using Contratos.General;
+using Contratos.Productos;
 using Dominio.Common;
 using Dominio.EncabezadoVentas;
 
@@ -18,17 +20,17 @@ public class EncabezadoVentasService : IEncabezadoVentasService
     // ==========================================
     // Listar con Filtros
     // ==========================================
-    public async Task<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>> ListarAsync(int? idvendedor,
+    public async Task<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>> ListarAsync(int? idventa, int? idvendedor,
         CancellationToken ct = default)
     {
         try
         {
             // Obtener todos los encabezados del repositorio
-            var encabezadoVentas = await _repo.ListarAsync(idvendedor, ct);
-
+            var encabezadoVentas = await _repo.ListarAsync(idventa, idvendedor, ct);
+            
             // Mapear a DTOs
             var encabezadoVentaDto = encabezadoVentas
-                .Select(p => MapearADto(p))
+                .Select(MapearADto)
                 .ToList();
 
             return ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>.Success(encabezadoVentaDto.AsReadOnly());
@@ -200,14 +202,19 @@ public class EncabezadoVentasService : IEncabezadoVentasService
     /// <summary>
     /// Mapea una entidad Producto a ProductoDto
     /// </summary>
-    private static EncabezadoVentaDto MapearADto(EncabezadoVenta producto)
+    public static EncabezadoVentaDto MapearADto(EncabezadoVenta entidad)
     {
-        return new EncabezadoVentaDto()
+        var resDto = new EncabezadoVentaDto()
         {
-            Idventa = producto.Idventa,
-            Idvendedor = producto.Idvendedor,
-            Fecha = producto.Fecha,
-            Total = producto.Total
+            Idventa = entidad.Idventa,
+            Idvendedor = entidad.Idvendedor,
+            Fecha = entidad.Fecha,
+            Total = entidad.Total,
+            DetalleVenta = entidad.DetalleVenta
+                .Select(DetalleVentasService.MapearADto)
+                .ToList()
         };
+        
+        return resDto;
     }
 }

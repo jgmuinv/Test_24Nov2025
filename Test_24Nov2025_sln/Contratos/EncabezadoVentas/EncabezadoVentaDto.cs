@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Contratos.DetalleVentas;
 
 namespace Contratos.EncabezadoVentas;
 
@@ -15,4 +16,6 @@ public record EncabezadoVentaDto
     
     [DisplayFormat(DataFormatString = "{0:C}")]
     public decimal Total { get; set; }
+    //public ICollection<DetalleVentaDto> DetalleVenta { get; set; } = new List<DetalleVentaDto>();
+    public List<DetalleVentaDto>? DetalleVenta { get; set; }
 }

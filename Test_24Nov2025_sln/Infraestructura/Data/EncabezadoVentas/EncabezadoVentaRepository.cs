@@ -23,7 +23,7 @@ public class EncabezadoVentaRepository : IEncabezadoVentaRepository
             .FirstOrDefaultAsync(p => p.Idventa == id, ct);
     }
 
-    public async Task<IReadOnlyList<EncabezadoVenta>> ListarAsync( int? idvendedor,CancellationToken ct = default)
+    public async Task<IReadOnlyList<EncabezadoVenta>> ListarAsync(int? idventa, int? idvendedor,CancellationToken ct = default)
     {
         var query = _context.EncabezadoVentas
             .Include(dv=>dv.DetalleVenta)
@@ -31,6 +31,12 @@ public class EncabezadoVentaRepository : IEncabezadoVentaRepository
             .Include(u =>u.Usuario)
             .AsNoTracking()
             .AsQueryable();
+        
+        // Filtros solo si viene con valor
+        if (idventa.HasValue)
+        {
+            query = query.Where(p => p.Idventa == idventa.Value);
+        }
         
         // Filtro por id solo si viene con valor
         if (idvendedor.HasValue)

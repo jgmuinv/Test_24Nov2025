@@ -94,4 +94,10 @@ public partial class DetalleVenta
             Idpro = nuevoProducto;
             return ResultadoDto<DetalleVentaDto?>.Success(null);
         }
+        
+        public ResultadoDto<DetalleVentaDto?> RecalcularTotal()
+        {
+            Total = (Precio * Cantidad) + Iva;
+            return ResultadoDto<DetalleVentaDto?>.Success(null);
+        }
 }

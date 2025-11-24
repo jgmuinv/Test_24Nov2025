@@ -216,18 +216,19 @@ public class DetalleVentasService : IDetalleVentasService
     /// <summary>
     /// Mapea una entidad Producto a ProductoDto
     /// </summary>
-    private static DetalleVentaDto MapearADto(DetalleVenta producto)
+    public static DetalleVentaDto MapearADto(DetalleVenta entidad)
     {
         return new DetalleVentaDto()
         {
-            Idde = producto.Idde,
-            Idventa = producto.Idventa,
-            Idpro = producto.Idpro,
-            Cantidad = producto.Cantidad,
-            Precio = producto.Precio,
-            Total = producto.Total,
-            Fecha = producto.Fecha,
-            Iva = producto.Iva
+            Idde = entidad.Idde,
+            Idventa = entidad.Idventa,
+            Idpro = entidad.Idpro,
+            Cantidad = entidad.Cantidad,
+            Precio = entidad.Precio,
+            Total = entidad.Total,
+            Fecha = entidad.Fecha,
+            Iva = entidad.Iva,
+            NombreProducto = entidad.Productos.producto
         };
     }
 }

@@ -65,4 +65,19 @@ public sealed class EncabezadoVenta
         Idvendedor = nuevoVendedor;
         return ResultadoDto<EncabezadoVentaDto?>.Success(null);
     }
+    
+    public ResultadoDto<EncabezadoVentaDto?> AgregarDetalle(DetalleVenta detalle)
+    {
+
+        DetalleVenta.Add(detalle);
+        RecalcularTotal();
+        
+        return ResultadoDto<EncabezadoVentaDto?>.Success(null);
+    }
+    
+    public ResultadoDto<EncabezadoVentaDto?> RecalcularTotal()
+    {
+        Total = DetalleVenta.Sum(x => x.Total);
+        return ResultadoDto<EncabezadoVentaDto?>.Success(null);
+    }
 }

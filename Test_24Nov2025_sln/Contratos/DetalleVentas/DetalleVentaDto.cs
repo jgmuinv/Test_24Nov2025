@@ -12,10 +12,12 @@ public record DetalleVentaDto
     public DateTime Fecha { get; set; }
 
     public int Idventa { get; set; }
-    public EncabezadoVentaDto? EncabezadoVenta { get; set; }
+    //public EncabezadoVentaDto? EncabezadoVenta { get; set; }
 
     public int Idpro { get; set; }
-    public ProductoDto? Producto { get; set; }
+
+    public string NombreProducto { get; set; }
+    //public ProductoDto? Producto { get; set; }
 
     public decimal Cantidad { get; set; }
 

@@ -9,7 +9,7 @@ public interface IEncabezadoVentaRepository
     // CRUD Básico
     // ==========================================
     Task<EncabezadoVenta?> ObtenerPorIdAsync(int id, CancellationToken ct = default);
-    Task<IReadOnlyList<EncabezadoVenta>> ListarAsync(int? idvendedor, CancellationToken ct = default);
+    Task<IReadOnlyList<EncabezadoVenta>> ListarAsync(int? idventa, int? idvendedor, CancellationToken ct = default);
     Task CrearAsync(EncabezadoVenta obj, CancellationToken ct = default);
     Task ActualizarAsync(EncabezadoVenta obj, CancellationToken ct = default);
     Task EliminarAsync(int id, CancellationToken ct = default);

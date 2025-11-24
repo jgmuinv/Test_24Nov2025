@@ -6,7 +6,7 @@ namespace Aplicacion.Interfaces;
 
 public interface IEncabezadoVentasService
 {
-    Task<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>> ListarAsync(int? idvendedor, CancellationToken ct = default);
+    Task<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>> ListarAsync(int? idventa, int? idvendedor, CancellationToken ct = default);
 
     Task<ResultadoDto<PaginadoDto<EncabezadoVentaDto?>>> ListarPaginadoAsync(int? idvendedor,
         int paginaActual, int registrosPorPagina,

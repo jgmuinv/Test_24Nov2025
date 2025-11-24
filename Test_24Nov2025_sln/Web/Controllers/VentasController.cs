@@ -3,18 +3,20 @@ using System.Net.Http.Json;
 using System.Web;
 using Contratos.General;
 using Contratos.Productos;
+using Contratos.EncabezadoVentas;
+using Contratos.DetalleVentas;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Web.Models;
 
 namespace Web.Controllers;
 
-public class ProductosController : Controller
+public class VentasController : Controller
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ProductosController> _logger;
-
-    public ProductosController(IHttpClientFactory httpClientFactory, ILogger<ProductosController> logger)
+    private readonly ILogger<VentasController> _logger;
+    
+    public VentasController(IHttpClientFactory httpClientFactory, ILogger<VentasController> logger)
     {
         _httpClient = httpClientFactory.CreateClient("ApiClient");
         _logger = logger;
@@ -22,20 +24,16 @@ public class ProductosController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var obj = new ProductosFiltroPaginadoViewModel();
+        var obj = new VentasFiltroPaginadoViewModel();
         return View(obj);
     }
 
     // =========================================================
-    // POST: /Productos
-    // Lista paginada de productos (usa /Productos/ListarPaginado del API)
+    // POST: /Ventas
+    // Lista paginada de registros (/EncabezadoVentas/ListarPaginado?idvendedor=&paginaActual=1&registrosPorPagina=1)
     // =========================================================
     [HttpPost]
-    public async Task<IActionResult> Index(ProductosFiltroPaginadoViewModel obj)
-        // int? idpro = null,
-        // string? nombre = null,
-        // int paginaActual = 1,
-        // int registrosPorPagina = 10)
+    public async Task<IActionResult> Index(VentasFiltroPaginadoViewModel obj)
     {
         try
         {
@@ -47,21 +45,21 @@ public class ProductosController : Controller
             
             // Validación y construcción de querystring con los parámetros que exige el API
             var query = HttpUtility.ParseQueryString(string.Empty);
-            if (obj.IdPro.HasValue) query["idpro"] = obj.IdPro.Value.ToString();
-            if (!string.IsNullOrWhiteSpace(obj.Nombre)) query["nombre"] = obj.Nombre;
+            if (obj.IdVendedor.HasValue) query["idvendedor"] = obj.IdVendedor.Value.ToString();
+            
             query["paginaActual"] = obj.Resultados.PaginaActual.ToString();
             query["registrosPorPagina"] = obj.Resultados.TamanioPagina.ToString();
 
-            var url = $"Productos/ListarPaginado?{query}";
+            var url = $"EncabezadoVentas/ListarPaginado?{query}";
 
             var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "No se pudieron obtener los productos.";
-                return View(new PaginadoDto<ProductoDto?>
+                TempData["Error"] = "No se pudieron obtener los registros.";
+                return View(new PaginadoDto<EncabezadoVentaDto?>
                 {
-                    Items = new List<ProductoDto?>(),
+                    Items = new List<EncabezadoVentaDto?>(),
                     PaginaActual = obj.Resultados.PaginaActual,
                     TamanioPagina = obj.Resultados.TamanioPagina,
                     TotalRegistros = 0,
@@ -70,14 +68,14 @@ public class ProductosController : Controller
             }
 
             var resultado =
-                await response.Content.ReadFromJsonAsync<ResultadoDto<PaginadoDto<ProductoDto?>>>();
+                await response.Content.ReadFromJsonAsync<ResultadoDto<PaginadoDto<EncabezadoVentaDto?>>>();
 
             if (resultado == null)
             {
-                TempData["Error"] = "Respuesta inválida del servidor al listar productos.";
-                return View(new PaginadoDto<ProductoDto?>
+                TempData["Error"] = "Respuesta inválida del servidor al listar registros.";
+                return View(new PaginadoDto<EncabezadoVentaDto?>
                 {
-                    Items = new List<ProductoDto?>(),
+                    Items = new List<EncabezadoVentaDto?>(),
                     PaginaActual = obj.Resultados.PaginaActual,
                     TamanioPagina = obj.Resultados.TamanioPagina,
                     TotalRegistros = 0,
@@ -88,9 +86,9 @@ public class ProductosController : Controller
             if (!resultado.Exitoso)
             {
                 TempData["Error"] = string.Join(" ", resultado.Errores);
-                return View(new PaginadoDto<ProductoDto?>
+                return View(new PaginadoDto<EncabezadoVentaDto?>
                 {
-                    Items = new List<ProductoDto?>(),
+                    Items = new List<EncabezadoVentaDto?>(),
                     PaginaActual = obj.Resultados.PaginaActual,
                     TamanioPagina = obj.Resultados.TamanioPagina,
                     TotalRegistros = 0,
@@ -99,9 +97,9 @@ public class ProductosController : Controller
             }
 
             // Datos paginados que devuelve la API
-            var paginado = resultado.Datos ?? new PaginadoDto<ProductoDto?>
+            var paginado = resultado.Datos ?? new PaginadoDto<EncabezadoVentaDto?>
             {
-                Items = new List<ProductoDto?>(),
+                Items = new List<EncabezadoVentaDto?>(),
                 PaginaActual = obj.Resultados.PaginaActual,
                 TamanioPagina = obj.Resultados.TamanioPagina,
                 TotalRegistros = 0,
@@ -115,11 +113,11 @@ public class ProductosController : Controller
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error de comunicación con el API al listar productos paginados");
-            TempData["Error"] = "No se pudo comunicar con el servidor para listar los productos.";
-            return View(new PaginadoDto<ProductoDto?>
+            _logger.LogError(ex, "Error de comunicación con el API al listar registros paginados");
+            TempData["Error"] = "No se pudo comunicar con el servidor para listar los registros.";
+            return View(new PaginadoDto<EncabezadoVentaDto?>
             {
-                Items = new List<ProductoDto?>(),
+                Items = new List<EncabezadoVentaDto?>(),
                 PaginaActual = obj.Resultados.PaginaActual,
                 TamanioPagina = obj.Resultados.TamanioPagina,
                 TotalRegistros = 0,
@@ -128,11 +126,11 @@ public class ProductosController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error inesperado al listar productos paginados");
-            TempData["Error"] = "Ocurrió un error inesperado al listar los productos.";
-            return View(new PaginadoDto<ProductoDto?>
+            _logger.LogError(ex, "Error inesperado al listar registros paginados");
+            TempData["Error"] = "Ocurrió un error inesperado al listar los registros.";
+            return View(new PaginadoDto<EncabezadoVentaDto?>
             {
-                Items = new List<ProductoDto?>(),
+                Items = new List<EncabezadoVentaDto?>(),
                 PaginaActual = obj.Resultados.PaginaActual,
                 TamanioPagina = obj.Resultados.TamanioPagina,
                 TotalRegistros = 0,
@@ -142,18 +140,18 @@ public class ProductosController : Controller
     }
 
     // =========================================================
-    // GET: /Productos/Details/5
-    // Usa /Productos/Listar?idpro={id} del API
+    // GET: /Ventas/Details/5
+    // Usa /EncabezadoVentas/Listar?idventa={id} del API
     // =========================================================
     public async Task<IActionResult> Details(int id)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"Productos/Listar?idpro={id}");
+            var response = await _httpClient.GetAsync($"EncabezadoVentas/Listar?idventa={id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "No se pudo obtener el detalle del producto.";
+                TempData["Error"] = "No se pudo obtener el detalle del registro.";
                 return RedirectToAction(nameof(Index));
             }
 

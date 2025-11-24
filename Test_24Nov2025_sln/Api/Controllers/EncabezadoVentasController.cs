@@ -25,11 +25,11 @@ public class EncabezadoVentasController : ControllerBase
     // GET: /EncabezadoVentas/Listar
     // ============================
     [HttpGet]
-    public async Task<ActionResult<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>>> Listar(int? idvendedor, CancellationToken ct)
+    public async Task<ActionResult<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>>> Listar(int? idventa,int? idvendedor, CancellationToken ct)
     {
         try
         {
-            var lista = await _service.ListarAsync(idvendedor, ct);
+            var lista = await _service.ListarAsync(idventa, idvendedor, ct);
             return Ok(lista);
         }
         catch (DomainException de)
