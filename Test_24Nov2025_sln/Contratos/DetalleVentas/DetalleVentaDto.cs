@@ -1,4 +1,5 @@
-﻿using Contratos.EncabezadoVentas;
+﻿using System.ComponentModel.DataAnnotations;
+using Contratos.EncabezadoVentas;
 using Contratos.Productos;
 
 namespace Contratos.DetalleVentas;
@@ -21,9 +22,12 @@ public record DetalleVentaDto
 
     public decimal Cantidad { get; set; }
 
+    [DisplayFormat(DataFormatString = "{0:C}")]
     public decimal Precio { get; set; }
 
+    [DisplayFormat(DataFormatString = "{0:C}")]
     public decimal Iva { get; set; }
 
+    [DisplayFormat(DataFormatString = "{0:C}")]
     public decimal Total { get; set; }
 }

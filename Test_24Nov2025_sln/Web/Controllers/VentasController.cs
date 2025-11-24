@@ -163,29 +163,30 @@ public class VentasController : Controller
             }
 
             var resultado =
-                await response.Content.ReadFromJsonAsync<ResultadoDto<IReadOnlyList<ProductoDto?>>>();
+                await response.Content.ReadFromJsonAsync<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>>();
 
             if (resultado == null || !resultado.Exitoso || resultado.Datos == null)
             {
-                TempData["Error"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el producto." });
+                TempData["Mensaje"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el registro." });
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
-            var productoDto = resultado.Datos.FirstOrDefault();
-            if (productoDto == null)
+            var dto = resultado.Datos.FirstOrDefault();
+            if (dto == null)
             {
-                TempData["Error"] = "No se encontró el producto.";
+                TempData["Mensaje"] = "No se encontró el registro.";
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
+            
+            // var vm = new EncabezadoVentaDto
+            // {
+            //     Idventa = dto.Id,
+            //     Total = dto.
+            // };
 
-            var vm = new ProductoDto
-            {
-                Id = productoDto.Id,
-                Nombre = productoDto.Nombre,
-                Precio = productoDto.Precio
-            };
-
-            return View(vm);
+            return View(dto);
         }
         catch (HttpRequestException ex)
         {
