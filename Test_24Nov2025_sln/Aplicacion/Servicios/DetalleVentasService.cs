@@ -92,7 +92,9 @@ public class DetalleVentasService : IDetalleVentasService
             var detalleVenta = new DetalleVenta(dto.Idventa, dto.Idpro, dto.Cantidad, dto.Precio);
             await _repo.CrearAsync(detalleVenta, ct);
 
-            return ResultadoDto<DetalleVentaDto?>.Success(MapearADto(detalleVenta));
+            // Recargar desde BD con entidades foraneas incluidas
+            var creado = await _repo.ObtenerConProductosAsync(detalleVenta.Idde, ct);
+            return creado is null ? ResultadoDto<DetalleVentaDto?>.Failure("No se pudo obtener el encabezado recién creado.") : ResultadoDto<DetalleVentaDto?>.Success(MapearADto(creado));
         }
         catch (DomainException)
         {
@@ -228,7 +230,7 @@ public class DetalleVentasService : IDetalleVentasService
             Total = entidad.Total,
             Fecha = entidad.Fecha,
             Iva = entidad.Iva,
-            NombreProducto = entidad.Productos.producto
+            NombreProducto = entidad.Productos?.producto ?? string.Empty
         };
     }
 }

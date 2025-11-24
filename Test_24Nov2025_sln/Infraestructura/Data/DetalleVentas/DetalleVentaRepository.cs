@@ -108,7 +108,7 @@ public class DetalleVentaRepository : IDetalleVentaRepository
     // ==========================================
     public async Task<bool> ExisteAsync(int id, CancellationToken ct = default)
     {
-        return await _context.DetalleVentas.AnyAsync(p => p.Idventa == id, ct);
+        return await _context.DetalleVentas.AnyAsync(p => p.Idde == id, ct);
     }
     
     // ==========================================
@@ -120,6 +120,6 @@ public class DetalleVentaRepository : IDetalleVentaRepository
             .Include(p=>p.Productos)
             .Include(ev=>ev.EncVenta)
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Idventa == id, ct);
+            .FirstOrDefaultAsync(p => p.Idde == id, ct);
     }
 }

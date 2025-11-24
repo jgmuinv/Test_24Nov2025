@@ -30,6 +30,7 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest req)
     {
+        
         if (string.IsNullOrWhiteSpace(req.Usuario) || string.IsNullOrWhiteSpace(req.Clave))
             return BadRequest(new LoginResponse(false, null, null, "Usuario y clave son obligatorios"));
 
@@ -54,6 +55,50 @@ public class AuthController : ControllerBase
     private bool VerificarPassword(string passwordPlano, byte[] hashAlmacenado, byte[]? saltBytes,
         string? algoritmo, int? iteraciones)
     {
+        
+        // TODO: Comentar para no mostrar credeciales
+        
+        //  algoritmo   = "PBKDF2-SHA256";
+        //  var iteraciones2 = 100_000;
+        // var tamSalt     = 16;   // 16 bytes
+        // var tamHash     = 32;   // 32 bytes
+        //
+        // // 1) Generar salt REAL
+        // byte[] saltT = RandomNumberGenerator.GetBytes(tamSalt);
+        //
+        // // 2) Generar hash REAL
+        // byte[] hash;
+        //
+        // using (var derive = new Rfc2898DeriveBytes(
+        //            passwordPlano,
+        //            saltT,
+        //            iteraciones2,
+        //            HashAlgorithmName.SHA256))
+        // {
+        //     hash = derive.GetBytes(tamHash);
+        // }
+        //
+        // // 3) Pasar esos bytes a HEX para SQL
+        // string ToHex(byte[] bytes)
+        // {
+        //     var sb = new StringBuilder(bytes.Length * 2);
+        //     foreach (var b in bytes)
+        //         sb.AppendFormat("{0:X2}", b);
+        //     return sb.ToString();
+        // }
+        //
+        // var saltHex = ToHex(saltT); 
+        // var hashHex = ToHex(hash);   
+        //         string script = ($@"
+        // UPDATE Test_24Nov2025_DB.dbo.Usuarios
+        // SET 
+        //   clavehash       = 0x{hashHex},
+        //   clavesalt       = 0x{saltHex},
+        //   clavealgoritmo  = '{algoritmo}',
+        //   claveiteraciones = {iteraciones}
+        // WHERE usuario = 'jmejia';
+        // ");
+        
         if (saltBytes is null ||
             string.IsNullOrWhiteSpace(algoritmo) ||
             iteraciones is null or <= 0)
@@ -62,8 +107,8 @@ public class AuthController : ControllerBase
         }
 
         var salt = saltBytes;
-
-        // Asumo que usaste PBKDF2 (Rfc2898DeriveBytes) para generar la clave
+        
+        // Usando PBKDF2 (Rfc2898DeriveBytes) para generar la clave
         using var pbkdf2 = new Rfc2898DeriveBytes(
             passwordPlano,
             salt,
@@ -71,7 +116,7 @@ public class AuthController : ControllerBase
             HashAlgorithmName.SHA256);
 
         var hashCalculado = pbkdf2.GetBytes(hashAlmacenado.Length);
-
+        
         // Comparación constante para evitar timing attacks
         var diff = 0;
         for (int i = 0; i < hashAlmacenado.Length; i++)

@@ -96,7 +96,7 @@ public class EncabezadoVentasService : IEncabezadoVentasService
             
             // Recargar desde BD con entidades foraneas incluidas
             var creado = await _repo.ObtenerConDetallesVentaAsync(encabezadoVenta.Idventa, ct);
-            return creado is null ? ResultadoDto<EncabezadoVentaDto?>.Failure("No se pudo obtener el encabezado recién creado.") : ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(encabezadoVenta));
+            return creado is null ? ResultadoDto<EncabezadoVentaDto?>.Failure("No se pudo obtener el encabezado recién creado.") : ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(creado));
         }
         catch (DomainException)
         {

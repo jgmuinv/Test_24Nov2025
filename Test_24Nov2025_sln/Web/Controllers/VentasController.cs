@@ -353,9 +353,9 @@ public class VentasController : Controller
     // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ActualizarEncabezadoVentaRequest model)
+    public async Task<IActionResult> Edit(int id, VentasEditarEncabezadoViewModel model)
     {
-        if (id != model.IdVenta)
+        if (id != model.Idventa)
         {
             ModelState.AddModelError(string.Empty, "El identificador del registro no coincide.");
             return View(model);
@@ -368,37 +368,108 @@ public class VentasController : Controller
 
         try
         {
-            var response = await _httpClient.PutAsJsonAsync($"EncabezadoVentas/Actualizar/{id}", model);
-
-            if (!response.IsSuccessStatusCode)
+            if (model.NuevoDvIdPro <= 0)
             {
-                var cuerpo = await response.Content.ReadAsStringAsync();
+                model.Mensaje = "Debe ingresar el código del producto.";
+                model.TipoMensaje = "danger";
+                return View(model);
+            }
+            
+            if (string.IsNullOrEmpty(model.NuevoDvProducto))
+            {
+                model.Mensaje = "Debe ingresar el nombre del producto.";
+                model.TipoMensaje = "danger";
+                return View(model);
+            }
+            
+            if (model.NuevoDvPrecio <= 0)
+            {
+                model.Mensaje = "Debe ingresar el precio del producto.";
+                model.TipoMensaje = "danger";
+                return View(model);
+            }
+            
+            if (model.NuevoDvCantidad <= 0)
+            {
+                model.Mensaje = "Debe ingresar la cantidad del producto.";
+                model.TipoMensaje = "danger";
+                return View(model);
+            }
+
+            var reqDetalleVentaNuevo = new CrearDetalleVentaDto
+            {
+                Idventa = model.Idventa,
+                Idpro = model.NuevoDvIdPro,
+                Cantidad = model.NuevoDvCantidad,
+                Precio = model.NuevoDvPrecio
+            };
+            
+            var responseDetalle = await _httpClient.PostAsJsonAsync($"DetalleVentas/Crear", reqDetalleVentaNuevo);
+            
+            if (!responseDetalle.IsSuccessStatusCode)
+            {
+                var cuerpo = await responseDetalle.Content.ReadAsStringAsync();
                 ModelState.AddModelError(string.Empty, $"No se pudo actualizar el registro. Detalle técnico: {cuerpo}");
                 return View(model);
             }
 
-            var resultado =
-                await response.Content.ReadFromJsonAsync<ResultadoDto<EncabezadoVentaDto?>>();
+            var resultadoDetalle =
+                await responseDetalle.Content.ReadFromJsonAsync<ResultadoDto<DetalleVentaDto?>>();
 
-            if (resultado == null)
+            if (resultadoDetalle == null)
             {
                 ModelState.AddModelError(string.Empty, "Respuesta inválida del servidor al actualizar el registro.");
                 return View(model);
             }
 
-            if (!resultado.Exitoso)
+            if (!resultadoDetalle.Exitoso)
             {
-                foreach (var error in resultado.Errores)
+                foreach (var error in resultadoDetalle.Errores)
                 {
                     ModelState.AddModelError(string.Empty, error);
                 }
 
                 return View(model); // errores de dominio
             }
-
-            TempData["Mensaje"] = "Registro actualizado correctamente.";
+            
+            TempData["Mensaje"] = "Detalle agregado correctamente.";
             TempData["TipoMensaje"] = "success";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Edit), new { id = model.Idventa });
+            
+            //
+            //
+            //
+            // var response = await _httpClient.PutAsJsonAsync($"EncabezadoVentas/Actualizar/{id}", model);
+            //
+            // if (!response.IsSuccessStatusCode)
+            // {
+            //     var cuerpo = await response.Content.ReadAsStringAsync();
+            //     ModelState.AddModelError(string.Empty, $"No se pudo actualizar el registro. Detalle técnico: {cuerpo}");
+            //     return View(model);
+            // }
+            //
+            // var resultado =
+            //     await response.Content.ReadFromJsonAsync<ResultadoDto<EncabezadoVentaDto?>>();
+            //
+            // if (resultado == null)
+            // {
+            //     ModelState.AddModelError(string.Empty, "Respuesta inválida del servidor al actualizar el registro.");
+            //     return View(model);
+            // }
+            //
+            // if (!resultado.Exitoso)
+            // {
+            //     foreach (var error in resultado.Errores)
+            //     {
+            //         ModelState.AddModelError(string.Empty, error);
+            //     }
+            //
+            //     return View(model); // errores de dominio
+            // }
+            //
+            // TempData["Mensaje"] = "Registro actualizado correctamente.";
+            // TempData["TipoMensaje"] = "success";
+            // return RedirectToAction(nameof(Index));
         }
         catch (HttpRequestException ex)
         {
@@ -479,17 +550,18 @@ public class VentasController : Controller
     // =========================================================
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(int id, int idventa)
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"Ventas/Eliminar/{id}");
+            var response = await _httpClient.DeleteAsync($"DetalleVentas/Eliminar/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
                 var cuerpo = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = $"No se pudo eliminar el registro. Detalle técnico: {cuerpo}";
-                return RedirectToAction(nameof(Index));
+                TempData["Mensaje"] = $"No se pudo eliminar el registro. Detalle técnico: {cuerpo}";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction(nameof(Edit), new { id = idventa });
             }
 
             var resultado =
@@ -497,25 +569,27 @@ public class VentasController : Controller
 
             if (resultado == null)
             {
-                TempData["Error"] = "Respuesta inválida del servidor al eliminar el registro.";
-                return RedirectToAction(nameof(Index));
+                TempData["Mensaje"] = "Respuesta inválida del servidor al eliminar el registro.";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction(nameof(Edit), new { id = idventa });
             }
 
             if (!resultado.Exitoso)
             {
                 TempData["Mensaje"] = string.Join(" ", resultado.Errores);
                 TempData["TipoMensaje"] = "danger";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Edit), new { id = idventa });
             }
 
             TempData["Mensaje"] = "Registro eliminado correctamente.";
             TempData["TipoMensaje"] = "success";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Edit), new { id = idventa });
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Error de comunicación con el API al eliminar registro {Id}", id);
-            TempData["Error"] = "No se pudo comunicar con el servidor para eliminar el registro.";
+            TempData["Mensaje"] = "No se pudo comunicar con el servidor para eliminar el registro.";
+            TempData["TipoMensaje"] = "danger";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)

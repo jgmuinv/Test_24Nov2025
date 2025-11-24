@@ -26,27 +26,27 @@ builder.Services.AddControllersWithViews()
     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
     .AddDataAnnotationsLocalization();
 
-// // =====================
-// // Autenticación (Cookies)
-// // =====================
-// builder.Services
-//     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//     .AddCookie(options =>
-//     {
-//         options.LoginPath = "/Ingresar/Login";          // página de login
-//         options.LogoutPath = "/Ingresar/Logout";        // acción de logout
-//         options.AccessDeniedPath = "/Ingresar/AccessDenied";
-//         options.SlidingExpiration = true;
-//         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-//         // Opcional: nombre de la cookie
-//         options.Cookie.Name = "WebAuthCookie";
-//     });
+// =====================
+// Autenticación (Cookies)
+// =====================
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Ingresar/Login";          // página de login
+        options.LogoutPath = "/Ingresar/Logout";        // acción de logout
+        options.AccessDeniedPath = "/Ingresar/AccessDenied";
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+        // Opcional: nombre de la cookie
+        options.Cookie.Name = "WebAuthCookie";
+    });
 
-// builder.Services.AddAuthorization(options =>
-// {
-//     // Política por defecto: requiere usuario autenticado
-//     options.FallbackPolicy = options.DefaultPolicy;
-// });
+builder.Services.AddAuthorization(options =>
+{
+    // Política por defecto: requiere usuario autenticado
+    options.FallbackPolicy = options.DefaultPolicy;
+});
 
 // =====================
 // Cliente para consumir el API
@@ -84,9 +84,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// // Auth
-// app.UseAuthentication();
-// app.UseAuthorization();
+// Auth
+app.UseAuthentication();
+app.UseAuthorization();
 
 // =====================
 // Rutas MVC

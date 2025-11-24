@@ -6,8 +6,11 @@
 
 <h1>Editar venta</h1>
 
-<form asp-action="Edit" method="post">
-    <hr/>
+@using(Html.BeginForm("Edit","Ventas",null,FormMethod.Post)) 
+{
+@Html.AntiForgeryToken()
+
+   <hr/>
     @* Si hay un mensaje lo muestra *@
     @if (TempData["Mensaje"] != null) {
         <div class="alert alert-@TempData["TipoMensaje"]">@TempData["Mensaje"]</div>
@@ -18,8 +21,6 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group mb-4">
                     <b>Fecha:</b> @Html.DisplayFor(model => model.Fecha)
                 </div>
@@ -32,30 +33,36 @@
             </div>
         </div>
         <div class="card">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group mb-4">
-                <label asp-for="NuevoDvIdPro" class="control-label fw-bold"></label>
-                <input asp-for="NuevoDvIdPro" readonly="readonly" class="form-control"/>
-                <span asp-validation-for="NuevoDvIdPro" class="text-danger"></span>
+            <div class="card-header">Nuevo detalle</div>
+            <div class="card-body">
+                <div class="row">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="col-md-2 mb-3">
+                        <label asp-for="NuevoDvIdPro" class="control-label fw-bold"></label>
+                        <input asp-for="NuevoDvIdPro" class="form-control"/>
+                        <span asp-validation-for="NuevoDvIdPro" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="NuevoDvProducto" class="control-label fw-bold"></label>
+                        <input asp-for="NuevoDvProducto" class="form-control"/>
+                        <span asp-validation-for="NuevoDvProducto" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="NuevoDvPrecio" class="control-label fw-bold"></label>
+                        <input asp-for="NuevoDvPrecio" class="form-control" type="number"/>
+                        <span asp-validation-for="NuevoDvPrecio" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label asp-for="NuevoDvCantidad" class="control-label fw-bold"></label>
+                        <input asp-for="NuevoDvCantidad" class="form-control" type="number"/>
+                        <span asp-validation-for="NuevoDvCantidad" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-2 mb-3 d-flex gap-2 align-items-end">
+                        <button type="submit" class="btn btn-primary">Agregar detalle</button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group mb-4">
-                <label asp-for="NuevoDvProducto" class="control-label fw-bold"></label>
-                <input asp-for="NuevoDvProducto" class="form-control"/>
-                <span asp-validation-for="NuevoDvProducto" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-4">
-                <label asp-for="NuevoDvPrecio" class="control-label fw-bold"></label>
-                <input asp-for="NuevoDvPrecio" class="form-control"  type="number" />
-                <span asp-validation-for="NuevoDvPrecio" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-4">
-                <label asp-for="NuevoDvCantidad" class="control-label fw-bold"></label>
-                <input asp-for="NuevoDvCantidad" class="form-control"  type="number" />
-                <span asp-validation-for="NuevoDvCantidad" class="text-danger"></span>
-            </div>
-            <div class="col-md-2 d-flex gap-2 align-items-end">
-                <button type="submit" class="btn btn-primary">Agregar detalle</button>
-            </div>
+
         </div>
         <div class="row">
             <div class="col-md-12">
@@ -85,7 +92,8 @@
                                 <td class="text-center">@Html.DisplayFor(_ => p.Iva)</td>
                                 <td class="text-center">
                                     @* <a asp-action="Edit" asp-route-id="@p.Idde" class="btn btn-sm btn-primary">Editar</a> *@
-                                    <form asp-action="Delete" asp-route-id="@p.Idde" method="post" class="d-inline">
+                                    <form asp-action="Delete" asp-route-id="@p.Idde" asp-route-idventa="@p.Idventa" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
                                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?');">Eliminar</button>
                                     </form>
                                 </td>
@@ -99,11 +107,17 @@
     </div>
     <hr/>
     <div class="form-group mb-4">
-        <input type="submit" value="Guardar" class="btn btn-primary"/>
+        @* <input type="submit" value="Guardar" class="btn btn-primary"/> *@
         @Html.ActionLink("Regresar", "Index", null, null, new {@class = "btn btn-secondary"})
     </div>    
     @Html.HiddenFor(x => x.Idventa)
-</form>
+    @Html.HiddenFor(x => x.NombreVendedor)
+    @Html.HiddenFor(x => x.Idvendedor)
+    @Html.HiddenFor(x => x.Fecha)
+    @Html.HiddenFor(x => x.DetalleVenta)
+}
+
+ 
 
 
 @section Scripts {

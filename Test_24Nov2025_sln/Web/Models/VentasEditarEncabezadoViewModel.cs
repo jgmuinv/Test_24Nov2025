@@ -11,10 +11,21 @@ public record VentasEditarEncabezadoViewModel : EncabezadoVentaDto
     // public IEnumerable<SelectListItem>? ListaUsuarios { get; set; }
     
     // Nuevo detalle de venta
-    public int? NuevoDvIdPro { get; set; }
-    public int? NuevoDvProducto { get; set; }
-    public decimal? NuevoDvPrecio { get; set; }
-    public int? NuevoDvCantidad { get; set; }
+    [Display(Name = "Código Prod.")]
+    [Required (ErrorMessage = "Ingrese el código del nuevo detalle")]
+    public int NuevoDvIdPro { get; set; }
+    
+    [Display(Name = "Nombre Prod.")]
+    [Required (ErrorMessage = "Ingrese el nombre del nuevo detalle")]
+    public string NuevoDvProducto { get; set; }
+    
+    [Display(Name = "Precio")]
+    [Required (ErrorMessage = "Ingrese el precio del nuevo detalle")]
+    public decimal NuevoDvPrecio { get; set; }
+    
+    [Display(Name = "Cantidad")]
+    [Required (ErrorMessage = "Ingrese la cantidad del nuevo detalle")]
+    public int NuevoDvCantidad { get; set; }
     
     // Mensajes de notificación
     public string? Mensaje { get; set; }
