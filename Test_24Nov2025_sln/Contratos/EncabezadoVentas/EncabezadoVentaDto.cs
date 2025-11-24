@@ -8,10 +8,14 @@ namespace Contratos.EncabezadoVentas;
 /// </summary>
 public record EncabezadoVentaDto
 {
+    [Required (ErrorMessage = "El Id del encabezado es obligatorio")]
     public int Idventa { get; set; }
 
     public DateTime Fecha { get; set; } = DateTime.Now;
 
+    [Range(1, int.MaxValue)]
+    [Display(Name = "Vendedor")]
+    [Required(ErrorMessage = "El vendedor es obligatorio")]
     public int Idvendedor { get; set; }
     public string NombreVendedor { get; set; }
     

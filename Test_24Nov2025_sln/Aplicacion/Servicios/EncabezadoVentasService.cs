@@ -215,7 +215,8 @@ public class EncabezadoVentasService : IEncabezadoVentasService
             Total = entidad.Total,
             DetalleVenta = entidad.DetalleVenta
                 .Select(DetalleVentasService.MapearADto)
-                .ToList() ?? []
+                .ToList() ?? [],
+            
         };
         
         return resDto;

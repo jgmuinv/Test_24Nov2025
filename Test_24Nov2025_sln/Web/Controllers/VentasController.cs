@@ -160,7 +160,8 @@ public class VentasController : Controller
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "No se pudo obtener el detalle del registro.";
+                TempData["Mensaje"] = "No se pudo obtener el detalle del registro.";
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -291,35 +292,41 @@ public class VentasController : Controller
     {
         try
         {
-            var response = await _httpClient.GetAsync($"EncabezadoVentas/Listar?idpro={id}");
+            var response = await _httpClient.GetAsync($"EncabezadoVentas/Listar?idventa={id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "No se pudo obtener el registro para editar.";
+                TempData["Mensaje"] = "No se pudo obtener el registro para editar.";
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
             var resultado =
-                await response.Content.ReadFromJsonAsync<ResultadoDto<IReadOnlyList<ProductoDto?>>>();
+                await response.Content.ReadFromJsonAsync<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>>();
 
             if (resultado == null || !resultado.Exitoso || resultado.Datos == null)
             {
-                TempData["Error"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el registro." });
+                TempData["Mensaje"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el registro." });
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
-            var productoDto = resultado.Datos.FirstOrDefault();
-            if (productoDto == null)
+            var entidad = resultado.Datos.FirstOrDefault();
+            if (entidad == null)
             {
-                TempData["Error"] = "No se encontró el registro.";
+                TempData["Mensaje"] = "No se encontró el registro.";
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
-            var model = new ActualizarProductoRequest
+            var model = new VentasEditarEncabezadoViewModel()
             {
-                Id = productoDto.Id,
-                Nombre = productoDto.Nombre,
-                Precio = productoDto.Precio
+                Idventa = entidad.Idventa,
+                Idvendedor = entidad.Idvendedor,
+                Total = entidad.Total,
+                DetalleVenta = entidad.DetalleVenta,
+                Fecha = entidad.Fecha,
+                NombreVendedor = entidad.NombreVendedor
             };
 
             return View(model);
@@ -327,13 +334,15 @@ public class VentasController : Controller
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Error de comunicación con el API al obtener registro {Id} para edición", id);
-            TempData["Error"] = "No se pudo comunicar con el servidor para obtener el registro.";
+            TempData["Mensaje"] = "No se pudo comunicar con el servidor para obtener el registro.";
+            TempData["TipoMensaje"] = "danger";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error inesperado al obtener registro {Id} para edición", id);
-            TempData["Error"] = "Ocurrió un error inesperado al obtener el registro.";
+            TempData["Mensaje"] = "Ocurrió un error inesperado al obtener el registro.";
+            TempData["TipoMensaje"] = "danger";
             return RedirectToAction(nameof(Index));
         }
     }
@@ -344,9 +353,9 @@ public class VentasController : Controller
     // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ActualizarProductoRequest model)
+    public async Task<IActionResult> Edit(int id, ActualizarEncabezadoVentaRequest model)
     {
-        if (id != model.Id)
+        if (id != model.IdVenta)
         {
             ModelState.AddModelError(string.Empty, "El identificador del registro no coincide.");
             return View(model);
@@ -369,7 +378,7 @@ public class VentasController : Controller
             }
 
             var resultado =
-                await response.Content.ReadFromJsonAsync<ResultadoDto<ProductoDto?>>();
+                await response.Content.ReadFromJsonAsync<ResultadoDto<EncabezadoVentaDto?>>();
 
             if (resultado == null)
             {
