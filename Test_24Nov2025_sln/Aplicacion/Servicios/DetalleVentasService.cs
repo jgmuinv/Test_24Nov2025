@@ -1,16 +1,16 @@
 ﻿using Aplicacion.Interfaces;
-using Contratos.EncabezadoVentas;
+using Contratos.DetalleVentas;
 using Contratos.General;
 using Dominio.Common;
-using Dominio.EncabezadoVentas;
+using Dominio.DetalleVentas;
 
 namespace Aplicacion.Servicios;
 
-public class EncabezadoVentasService : IEncabezadoVentasService
+public class DetalleVentasService : IDetalleVentasService
 {
-    private readonly IEncabezadoVentaRepository _repo;
+    private readonly IDetalleVentaRepository _repo;
 
-    public EncabezadoVentasService(IEncabezadoVentaRepository repo)
+    public DetalleVentasService(IDetalleVentaRepository repo)
     {
         _repo = repo;
     }
@@ -18,20 +18,20 @@ public class EncabezadoVentasService : IEncabezadoVentasService
     // ==========================================
     // Listar con Filtros
     // ==========================================
-    public async Task<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>> ListarAsync(int? idvendedor,
+    public async Task<ResultadoDto<IReadOnlyList<DetalleVentaDto?>>> ListarAsync(int? idvendedor,
         CancellationToken ct = default)
     {
         try
         {
-            // Obtener todos los encabezados del repositorio
-            var encabezadoVentas = await _repo.ListarAsync(idvendedor, ct);
+            // Obtener todos los Detalles del repositorio
+            var DetalleVentas = await _repo.ListarAsync(idvendedor, ct);
 
             // Mapear a DTOs
-            var encabezadoVentaDto = encabezadoVentas
+            var DetalleVentaDto = DetalleVentas
                 .Select(p => MapearADto(p))
                 .ToList();
 
-            return ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>.Success(encabezadoVentaDto.AsReadOnly());
+            return ResultadoDto<IReadOnlyList<DetalleVentaDto?>>.Success(DetalleVentaDto.AsReadOnly());
         }
         catch (DomainException)
         {
@@ -39,14 +39,14 @@ public class EncabezadoVentasService : IEncabezadoVentasService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("Error al listar los encabezados de venta", ex);
+            throw new ApplicationException("Error al listar los Detalles de venta", ex);
         }
     }
 
     // ==========================================
     // Listar Paginado con Filtros
     // ==========================================
-    public async Task<ResultadoDto<PaginadoDto<EncabezadoVentaDto?>>> ListarPaginadoAsync(int? idvendedor,
+    public async Task<ResultadoDto<PaginadoDto<DetalleVentaDto?>>> ListarPaginadoAsync(int? idventa,
         int paginaActual, int registrosPorPagina,
         CancellationToken ct = default)
     {
@@ -58,18 +58,18 @@ public class EncabezadoVentasService : IEncabezadoVentasService
             if (registrosPorPagina <= 0)
                 throw new DomainException("La la cantidad de registros por página debe ser mayor a cero");
 
-            // Obtener todos los encabezados de venta del repositorio
-            var encabezadoVentas = await _repo.ListarPaginadoAsync(idvendedor, paginaActual, registrosPorPagina, ct);
+            // Obtener todos los Detalles de venta del repositorio
+            var DetalleVentas = await _repo.ListarPaginadoAsync(idventa, paginaActual, registrosPorPagina, ct);
 
             // Mapear a DTOs
-            var encabezadosVentasDto = encabezadoVentas.Items
+            var DetallesVentasDto = DetalleVentas.Items
                 .Select(p => MapearADto(p))
                 .ToList();
-            var paginado = new PaginadoDto<EncabezadoVentaDto?>(encabezadosVentasDto, encabezadoVentas.TotalRegistros,
-                encabezadoVentas.PaginaActual,
-                encabezadoVentas.TamanioPagina);
+            var paginado = new PaginadoDto<DetalleVentaDto?>(DetallesVentasDto, DetalleVentas.TotalRegistros,
+                DetalleVentas.PaginaActual,
+                DetalleVentas.TamanioPagina);
 
-            return ResultadoDto<PaginadoDto<EncabezadoVentaDto?>>.Success(paginado);
+            return ResultadoDto<PaginadoDto<DetalleVentaDto?>>.Success(paginado);
         }
         catch (DomainException)
         {
@@ -77,22 +77,22 @@ public class EncabezadoVentasService : IEncabezadoVentasService
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("Error al listar los encabezados de venta", ex);
+            throw new ApplicationException("Error al listar los Detalles de venta", ex);
         }
     }
 
     // ==========================================
     // Crear registro
     // ==========================================
-    public async Task<ResultadoDto<EncabezadoVentaDto?>> CrearAsync(CrearEncabezadoVentaDto dto,
+    public async Task<ResultadoDto<DetalleVentaDto?>> CrearAsync(CrearDetalleVentaDto dto,
         CancellationToken ct = default)
     {
         try
         {
-            var encabezadoVenta = new EncabezadoVenta(dto.Idvendedor);
-            await _repo.CrearAsync(encabezadoVenta, ct);
+            var detalleVenta = new DetalleVenta(dto.Idventa, dto.Idpro, dto.Cantidad, dto.Precio);
+            await _repo.CrearAsync(detalleVenta, ct);
 
-            return ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(encabezadoVenta));
+            return ResultadoDto<DetalleVentaDto?>.Success(MapearADto(detalleVenta));
         }
         catch (DomainException)
         {
@@ -107,7 +107,7 @@ public class EncabezadoVentasService : IEncabezadoVentasService
     // ==========================================
     // Editar registro
     // ==========================================
-    public async Task<ResultadoDto<EncabezadoVentaDto?>> EditarAsync(int id, EditarEncabezadoVentaDto dto,
+    public async Task<ResultadoDto<DetalleVentaDto?>> EditarAsync(int id, EditarDetalleVentaDto dto,
         CancellationToken ct = default)
     {
         try
@@ -117,34 +117,59 @@ public class EncabezadoVentasService : IEncabezadoVentasService
 
             if (objBd == null)
             {
-                return ResultadoDto<EncabezadoVentaDto?>.Failure("No existe el registro en la base de datos");
+                return ResultadoDto<DetalleVentaDto?>.Failure("No existe el registro en la base de datos");
             }
 
-            if (dto.Total != objBd.DetalleVenta.Sum(venta => venta.Total))
+            if (dto.Idpro <= 0)
             {
-                return ResultadoDto<EncabezadoVentaDto?>.Failure("El total no coincide con el detalle de la venta");
+                return ResultadoDto<DetalleVentaDto?>.Failure("Indique el producto");
             }
-
-            if (objBd.Total != dto.Total)
+            
+            if (objBd.Idpro != dto.Idpro)
             {
-                var resultadoPrecio = objBd.ActualizarTotal();
+                var resultadoProducto = objBd.ActualizarProducto(dto.Idpro);
+                if (!resultadoProducto.Exitoso)
+                {
+                    return resultadoProducto;
+                }                
+            }
+            
+            if (dto.Cantidad <= 0)
+            {
+                return ResultadoDto<DetalleVentaDto?>.Failure("La cantidad debe ser positiva");
+            }
+            
+            if (dto.Iva <= 0)
+            {
+                return ResultadoDto<DetalleVentaDto?>.Failure("El IVA debe ser positivo");
+            }
+            
+            if (objBd.Precio != dto.Precio)
+            {
+                var resultadoPrecio = objBd.ActualizarPrecio(dto.Precio);
                 if (!resultadoPrecio.Exitoso)
                 {
                     return resultadoPrecio;
                 }                
             }
-
-            var resultadoVendedor= objBd.ActualizarVendedor(dto.Idvendedor);
-            if (!resultadoVendedor.Exitoso)
+            
+            if (dto.Total != dto.Cantidad * dto.Precio)
             {
-                return resultadoVendedor;
+                return ResultadoDto<DetalleVentaDto?>.Failure("El total no coincide con el detalle de la venta");
             }
 
-            // if (dto.DetalleVenta != null) objBd.Total = dto.DetalleVenta.Sum(venta => venta.Total);
+            if (objBd.Total != dto.Total)
+            {
+                var resultadoTotal = objBd.ActualizarTotal(dto.Total);
+                if (!resultadoTotal.Exitoso)
+                {
+                    return resultadoTotal;
+                }                
+            }
             
             await _repo.ActualizarAsync(objBd, ct);
 
-            return ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(objBd));
+            return ResultadoDto<DetalleVentaDto?>.Success(MapearADto(objBd));
         }
         catch (DomainException)
         {
@@ -169,15 +194,6 @@ public class EncabezadoVentasService : IEncabezadoVentasService
                 throw new DomainException("No existe un registro con ese ID");
             }
 
-            // Verificar si tiene ventas asociadas
-            var encabezadoConVentas = await _repo.ObtenerConDetallesVentaAsync(id, ct);
-
-            if (encabezadoConVentas?.DetalleVenta?.Any() == true)
-            {
-                throw new DomainException(
-                    "No se puede eliminar el registro porque tiene ventas asociadas");
-            }
-
             // Eliminar
             await _repo.EliminarAsync(id, ct);
 
@@ -200,14 +216,18 @@ public class EncabezadoVentasService : IEncabezadoVentasService
     /// <summary>
     /// Mapea una entidad Producto a ProductoDto
     /// </summary>
-    private static EncabezadoVentaDto MapearADto(EncabezadoVenta producto)
+    private static DetalleVentaDto MapearADto(DetalleVenta producto)
     {
-        return new EncabezadoVentaDto()
+        return new DetalleVentaDto()
         {
+            Idde = producto.Idde,
             Idventa = producto.Idventa,
-            Idvendedor = producto.Idvendedor,
+            Idpro = producto.Idpro,
+            Cantidad = producto.Cantidad,
+            Precio = producto.Precio,
+            Total = producto.Total,
             Fecha = producto.Fecha,
-            Total = producto.Total
+            Iva = producto.Iva
         };
     }
 }

@@ -1,4 +1,4 @@
-﻿// OBJETIVO: Gestionar la lógica de negocio en los productos 
+﻿// OBJETIVO: Gestionar la lógica de negocio en los registros 
 using Contratos.General;
 using Contratos.EncabezadoVentas;
 

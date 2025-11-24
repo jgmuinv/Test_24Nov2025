@@ -5,9 +5,11 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Aplicacion.Servicios;
 using Aplicacion.Interfaces;
+using Dominio.DetalleVentas;
 using Dominio.EncabezadoVentas;
 using Dominio.Productos;
 using Infraestructura.Data;
+using Infraestructura.Data.DetalleVentas;
 using Infraestructura.Data.EncabezadoVentas;
 using Infraestructura.Data.Productos;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +44,10 @@ builder.Services.AddScoped<IProductosService, ProductosService>();
 
 builder.Services.AddScoped<IEncabezadoVentaRepository, EncabezadoVentaRepository>();
 builder.Services.AddScoped<IEncabezadoVentasService, EncabezadoVentasService>();
+
+builder.Services.AddScoped<IDetalleVentaRepository, DetalleVentaRepository>();
+builder.Services.AddScoped<IDetalleVentasService, DetalleVentasService>();
+
 //// File storage
 // var uploadsPath = Path.Combine(builder.Environment.WebRootPath, "uploads", "productos");
 // builder.Services.AddSingleton<IFileStorageService>(sp => new FileStorageService(uploadsPath));

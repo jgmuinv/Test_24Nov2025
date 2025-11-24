@@ -1,24 +1,23 @@
 ﻿// OBJETIVO: Gestionar el acceso a la base de datos de los encabezados de ventas 
 using Contratos.General;
+namespace Dominio.DetalleVentas;
 
-namespace Dominio.EncabezadoVentas;
-
-public interface IEncabezadoVentaRepository
+public interface IDetalleVentaRepository
 {
     // ==========================================
     // CRUD Básico
     // ==========================================
-    Task<EncabezadoVenta?> ObtenerPorIdAsync(int id, CancellationToken ct = default);
-    Task<IReadOnlyList<EncabezadoVenta>> ListarAsync(int? idvendedor, CancellationToken ct = default);
-    Task CrearAsync(EncabezadoVenta obj, CancellationToken ct = default);
-    Task ActualizarAsync(EncabezadoVenta obj, CancellationToken ct = default);
+    Task<DetalleVenta?> ObtenerPorIdAsync(int id, CancellationToken ct = default);
+    Task<IReadOnlyList<DetalleVenta>> ListarAsync(int? idventa, CancellationToken ct = default);
+    Task CrearAsync(DetalleVenta obj, CancellationToken ct = default);
+    Task ActualizarAsync(DetalleVenta obj, CancellationToken ct = default);
     Task EliminarAsync(int id, CancellationToken ct = default);
     
     // ==========================================
     // Paginación
     // ==========================================
-    Task<PaginadoDto<EncabezadoVenta?>> ListarPaginadoAsync(
-        int? idvendedor,
+    Task<PaginadoDto<DetalleVenta?>> ListarPaginadoAsync(
+        int? idventa,
         int paginaActual,
         int registrosPorPagina,
         CancellationToken ct = default);
@@ -31,6 +30,5 @@ public interface IEncabezadoVentaRepository
     // ==========================================
     // Con Relaciones
     // ==========================================
-    Task<EncabezadoVenta?> ObtenerConDetallesVentaAsync(int id, CancellationToken ct = default);
-    
+    Task<DetalleVenta?> ObtenerConProductosAsync(int id, CancellationToken ct = default);
 }

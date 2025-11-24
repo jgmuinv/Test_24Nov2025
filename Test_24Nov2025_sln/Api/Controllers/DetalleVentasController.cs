@@ -1,7 +1,7 @@
 ﻿using Aplicacion.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Dominio.Common;
-using Contratos.EncabezadoVentas;
+using Contratos.DetalleVentas;
 using Contratos.General;
 using Microsoft.AspNetCore.Authorization;
 
@@ -10,79 +10,84 @@ namespace Api.Controllers;
 [ApiController]
 [Route("[controller]/[action]")]
 //[Authorize]
-public class EncabezadoVentasController : ControllerBase
-{
-    private readonly IEncabezadoVentasService _service;
-    private readonly ILogger<EncabezadoVentasController> _logger;
 
-    public EncabezadoVentasController(IEncabezadoVentasService service, ILogger<EncabezadoVentasController> logger)
+public class DetalleVentasController : ControllerBase
+{
+    private readonly IDetalleVentasService _service;
+    private readonly ILogger<DetalleVentasController> _logger;
+
+    public DetalleVentasController(IDetalleVentasService service, ILogger<DetalleVentasController> logger)
     {
         _service = service;
         _logger = logger;
     }
     
     // ============================
-    // GET: /EncabezadoVentas/Listar
+    // GET: /DetalleVentas/Listar
     // ============================
     [HttpGet]
-    public async Task<ActionResult<ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>>> Listar(int? idvendedor, CancellationToken ct)
+    public async Task<ActionResult<ResultadoDto<IReadOnlyList<DetalleVentaDto?>>>> Listar(int? idventa, CancellationToken ct)
     {
         try
         {
-            var lista = await _service.ListarAsync(idvendedor, ct);
+            var lista = await _service.ListarAsync(idventa, ct);
             return Ok(lista);
         }
         catch (DomainException de)
         {
-            return BadRequest(ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>.Failure(de.Message));
+            return BadRequest(ResultadoDto<IReadOnlyList<DetalleVentaDto?>>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al listar registros");
-            return StatusCode(500, ResultadoDto<IReadOnlyList<EncabezadoVentaDto?>>.Failure("Error interno al listar registros"));
+            return StatusCode(500, ResultadoDto<IReadOnlyList<DetalleVentaDto?>>.Failure("Error interno al listar registros"));
         }
     }
     
     // ============================
-    // GET: /EncabezadoVentas/ListarPaginado
+    // GET: /DetalleVentas/ListarPaginado
     // ============================
     [HttpGet]
-    public async Task<ActionResult<ResultadoDto<PaginadoDto<EncabezadoVentaDto?>>>> ListarPaginado(int? idvendedor, int paginaActual, int registrosPorPagina, CancellationToken ct)
+    public async Task<ActionResult<ResultadoDto<PaginadoDto<DetalleVentaDto?>>>> ListarPaginado(int? idventa, int paginaActual, int registrosPorPagina, CancellationToken ct)
     {
         try
         {
-            var lista = await _service.ListarPaginadoAsync(idvendedor,paginaActual,registrosPorPagina, ct);
+            var lista = await _service.ListarPaginadoAsync(idventa,paginaActual,registrosPorPagina, ct);
             return Ok(lista);
         }
         catch (DomainException de)
         {
-            return BadRequest(ResultadoDto<PaginadoDto<EncabezadoVentaDto?>>.Failure(de.Message));
+            return BadRequest(ResultadoDto<PaginadoDto<DetalleVentaDto?>>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al listar registros");
-            return StatusCode(500, ResultadoDto<PaginadoDto<EncabezadoVentaDto?>>.Failure("Error interno al listar registros"));
+            return StatusCode(500, ResultadoDto<PaginadoDto<DetalleVentaDto?>>.Failure("Error interno al listar registros"));
         }
     }
 
     // ============================
-    // POST: /EncabezadoVentas/Crear
+    // POST: /DetalleVentas/Crear
     // ============================
     [HttpPost]
     //[Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<ResultadoDto<EncabezadoVentaDto?>>> Crear([FromBody] CrearEncabezadoVentaRequest request, CancellationToken ct)
+    public async Task<ActionResult<ResultadoDto<DetalleVentaDto?>>> Crear([FromBody] CrearDetalleVentaRequest request, CancellationToken ct)
     {
         if (!ModelState.IsValid)
             return 
-        ResultadoDto<EncabezadoVentaDto?>.Failure(ModelState.Values.SelectMany(v => v.Errors)
+        ResultadoDto<DetalleVentaDto?>.Failure(ModelState.Values.SelectMany(v => v.Errors)
             .Select(e => e.ErrorMessage).First());
         try
         {
-            var dto = new CrearEncabezadoVentaDto
+            var dto = new CrearDetalleVentaDto
             {
-                Idvendedor = request.IdVendedor,
+                Idventa = request.Idventa,
                 Fecha = request.Fecha,
-                DetalleVenta = request.DetalleVenta
+                Idpro = request.Idpro,
+                Cantidad = request.Cantidad,
+                Precio = request.Precio,
+                Total = request.Total,
+                Iva = request.Iva
             };
 
             var creado = await _service.CrearAsync(dto, ct);
@@ -91,37 +96,43 @@ public class EncabezadoVentasController : ControllerBase
         }
         catch (DomainException de)
         {
-            return BadRequest(ResultadoDto<EncabezadoVentaDto?>.Failure(de.Message));
+            return BadRequest(ResultadoDto<DetalleVentaDto?>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al crear registro");
-            return StatusCode(500,ResultadoDto<EncabezadoVentaDto?>.Failure("Error interno al crear el registro"));
+            return StatusCode(500,ResultadoDto<DetalleVentaDto?>.Failure("Error interno al crear el registro"));
         }
     }
 
     // ============================
-    // PUT: /EncabezadoVentas/Actualizar/5
+    // PUT: /DetalleVentas/Actualizar/5
     // ============================
     [HttpPut("{id:int}")]
     //[Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<ResultadoDto<EncabezadoVentaDto?>>> Actualizar(
+    public async Task<ActionResult<ResultadoDto<DetalleVentaDto?>>> Actualizar(
         int id,
-        [FromBody] ActualizarEncabezadoVentaRequest request,
+        [FromBody] ActualizarDetalleVentaRequest request,
         CancellationToken ct)
     {
-        if (id != request.IdVenta)
-            return ResultadoDto<EncabezadoVentaDto?>.Failure("El id de la ruta no coincide con el del cuerpo de la solicitud.");
+        if (id != request.Idde)
+            return ResultadoDto<DetalleVentaDto?>.Failure("El id de la ruta no coincide con el del cuerpo de la solicitud.");
 
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
 
         try
         {
-            var dto = new EditarEncabezadoVentaDto
+            var dto = new EditarDetalleVentaDto
             {
-                Idventa = request.IdVenta,
-                Idvendedor = request.IdVendedor
+                Idde = request.Idde,
+                Idventa = request.Idventa,
+                Fecha = request.Fecha,
+                Idpro = request.Idpro,
+                Cantidad = request.Cantidad,
+                Precio = request.Precio,
+                Total = request.Total,
+                Iva = request.Iva
             };
 
             var actualizado = await _service.EditarAsync(id, dto, ct);
@@ -130,17 +141,17 @@ public class EncabezadoVentasController : ControllerBase
         }
         catch (DomainException de)
         {
-            return BadRequest(ResultadoDto<EncabezadoVentaDto?>.Failure(de.Message));
+            return BadRequest(ResultadoDto<DetalleVentaDto?>.Failure(de.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al actualizar registro {Id}", id);
-            return StatusCode(500,ResultadoDto<EncabezadoVentaDto?>.Failure("Error interno al actualizar el registro"));
+            return StatusCode(500,ResultadoDto<DetalleVentaDto?>.Failure("Error interno al actualizar el registro"));
         }
     }
 
     // ============================
-    // DELETE: /EncabezadoVentas/Eliminar/5
+    // DELETE: /DetalleVentas/Eliminar/5
     // ============================
     [HttpDelete("{id:int}")]
     //[Authorize(Policy = "AdminOnly")]

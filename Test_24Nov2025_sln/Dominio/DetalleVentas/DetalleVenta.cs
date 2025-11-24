@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Contratos.DetalleVentas;
 using Contratos.General;
 using Contratos.Productos;
 using Dominio.Common;
@@ -35,14 +36,14 @@ public partial class DetalleVenta
     private DetalleVenta() { }
     
     // Constructor público para crear instancias (sin ID para nuevos registros)
-        public DetalleVenta(int idVenta, int idProducto, int cantidad, decimal precio)
+        public DetalleVenta(int idVenta, int idProducto, decimal cantidad, decimal precio)
         {
             // Validaciones de negocio
             if (idProducto <= 0)
                 throw new DomainException("Debe seleccionar un producto");
             
-            if (cantidad <= 0)
-                throw new DomainException("La cantidad debe ser mayor a cero");
+            if (cantidad <= 0 || cantidad > 999.99m)
+                throw new DomainException("La cantidad debe ser mayor a cero y menor de 999.99");
             
             if (precio <= 0 || precio > 99999999.99m)
                 throw new DomainException("El precio debe ser positivo y menor a 99,999,999.99");
@@ -50,7 +51,7 @@ public partial class DetalleVenta
             // Asignación de valores a las propiedades si pasa validaciones
             Fecha = DateTime.Now;
             Iva = (cantidad * precio) * 0.13m;
-            Total= (cantidad * precio) + Iva;
+            Total= cantidad * precio;
             Idventa = idVenta;
             Idpro = idProducto;
             Cantidad = cantidad;
@@ -64,13 +65,33 @@ public partial class DetalleVenta
         }
 
         // Métodos que encapsulan reglas de negocio más complejas
-        public ResultadoDto<ProductoDto?> ActualizarPrecio(decimal nuevoPrecio)
+        public ResultadoDto<DetalleVentaDto?> ActualizarPrecio(decimal nuevoPrecio)
         {
             // Regla de negocio específica
             if (nuevoPrecio <= 0 || nuevoPrecio > 99999999.99m)
-                return ResultadoDto<ProductoDto?>.Failure("El precio debe ser positivo y menor a 99,999,999.99");
+                return ResultadoDto<DetalleVentaDto?>.Failure("El precio debe ser positivo y menor a 99,999,999.99");
             
             Precio = nuevoPrecio;
-            return ResultadoDto<ProductoDto?>.Success(null);
+            return ResultadoDto<DetalleVentaDto?>.Success(null);
+        }
+        
+        public ResultadoDto<DetalleVentaDto?> ActualizarTotal(decimal nuevoTotal)
+        {
+            // Regla de negocio específica
+            if (nuevoTotal <= 0 || nuevoTotal > 99999999.99m)
+                return ResultadoDto<DetalleVentaDto?>.Failure("El total debe ser positivo y menor a 99,999,999.99");
+            
+            Total = nuevoTotal;
+            return ResultadoDto<DetalleVentaDto?>.Success(null);
+        }
+        
+        public ResultadoDto<DetalleVentaDto?> ActualizarProducto(int nuevoProducto)
+        {
+            // Regla de negocio específica
+            if (nuevoProducto <= 0)
+                return ResultadoDto<DetalleVentaDto?>.Failure("El id del producto debe ser positivo");
+            
+            Idpro = nuevoProducto;
+            return ResultadoDto<DetalleVentaDto?>.Success(null);
         }
 }
