@@ -1,0 +1,79 @@
+﻿@model Contratos.EncabezadoVentas.EncabezadoVentaDto
+
+@{
+    ViewData["Title"] = "Ver venta";
+}
+
+<h2>Ver venta</h2>
+<hr />
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group mb-4">
+                <b>Fecha:</b> @Html.DisplayFor(model => model.Fecha)
+            </div>
+            <div class="form-group mb-4">
+                <b>Vendedor: </b>@Html.DisplayFor(model => model.NombreVendedor)
+            </div>
+            <div class="form-group mb-4">
+                <b>Total: </b>@Html.DisplayFor(model => model.Total)
+            </div>
+        </div>
+    </div>   
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th class="col-3">Fecha</th>
+                <th class="col-2">Producto</th>
+                <th class="col-1 text-center">Cantidad</th>
+                <th class="col-2 text-center">Precio</th>
+                <th class="col-2 text-center">Total</th>
+                <th class="col-2 text-center">IVA</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model?.DetalleVenta != null)
+            {
+                @foreach (var p in Model.DetalleVenta)
+                {
+                    if (p == null) continue;
+                    <tr>
+                        <td>@p.Fecha</td>
+                        <td>@p.NombreProducto</td>
+                        <td class="text-center">@Html.DisplayFor(_ => p.Cantidad)</td>
+                        <td class="text-center">@Html.DisplayFor(_ => p.Precio)</td>
+                        <td class="text-center">@Html.DisplayFor(_ => p.Total)</td>
+                        <td class="text-center">@Html.DisplayFor(_ => p.Iva)</td>
+                    </tr>
+                }        
+            }
+            </tbody>
+            <tfoot>
+            @{
+                var detalles = Model.DetalleVenta ?? new List<Contratos.DetalleVentas.DetalleVentaDto>();
+
+                var totalCantidad = detalles.Sum(d => d.Cantidad);
+                var totalPrecio   = detalles.Sum(d => d.Precio);
+                var totalLinea    = detalles.Sum(d => d.Total);
+                var totalIva      = detalles.Sum(d => d.Iva);
+            }
+            <tr>
+                <td colspan="2" class="text-right fw-bold">Total:</td>
+                <td class="text-center">@totalCantidad</td>
+                <td class="text-center">@totalPrecio.ToString("C")</td>
+                <td class="text-center">@totalLinea.ToString("C")</td>
+                <td class="text-center">@totalIva.ToString("C")</td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<hr />
+<div>
+    @Html.ActionLink("Regresar","Index",null,null,new {@class="btn btn-secondary"})
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
