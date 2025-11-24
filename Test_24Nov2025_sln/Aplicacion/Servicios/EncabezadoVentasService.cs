@@ -93,8 +93,10 @@ public class EncabezadoVentasService : IEncabezadoVentasService
         {
             var encabezadoVenta = new EncabezadoVenta(dto.Idvendedor);
             await _repo.CrearAsync(encabezadoVenta, ct);
-
-            return ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(encabezadoVenta));
+            
+            // Recargar desde BD con entidades foraneas incluidas
+            var creado = await _repo.ObtenerConDetallesVentaAsync(encabezadoVenta.Idventa, ct);
+            return creado is null ? ResultadoDto<EncabezadoVentaDto?>.Failure("No se pudo obtener el encabezado recién creado.") : ResultadoDto<EncabezadoVentaDto?>.Success(MapearADto(encabezadoVenta));
         }
         catch (DomainException)
         {
@@ -208,12 +210,12 @@ public class EncabezadoVentasService : IEncabezadoVentasService
         {
             Idventa = entidad.Idventa,
             Idvendedor = entidad.Idvendedor,
-            NombreVendedor = entidad.Usuario.nombre,
+            NombreVendedor = entidad.Usuario?.nombre ?? string.Empty,
             Fecha = entidad.Fecha,
             Total = entidad.Total,
             DetalleVenta = entidad.DetalleVenta
                 .Select(DetalleVentasService.MapearADto)
-                .ToList()
+                .ToList() ?? []
         };
         
         return resDto;

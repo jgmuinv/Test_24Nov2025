@@ -29,9 +29,10 @@ public class VentasController : Controller
     {
         var obj = new VentasFiltroPaginadoViewModel();
 
-        var respNombresUsuarios = await ListaNombreUsuarios(obj);
+        var respNombresUsuarios = await ListaNombreUsuarios();
+        obj.ListaUsuarios = respNombresUsuarios.Datos;
         
-        return View(respNombresUsuarios.Datos);
+        return View(obj);
     }
 
     // =========================================================
@@ -115,8 +116,9 @@ public class VentasController : Controller
             obj.Resultados = paginado;
             obj.Mensaje = "Filtrado realizado correctamente.";
             obj.TipoMensaje = "success";
-            var respNombreUsuarios = await ListaNombreUsuarios(obj);
-            return View(respNombreUsuarios.Datos);
+            var respNombreUsuarios = await ListaNombreUsuarios();
+            obj.ListaUsuarios = respNombreUsuarios.Datos;
+            return View(obj);
         }
         catch (HttpRequestException ex)
         {
@@ -203,23 +205,30 @@ public class VentasController : Controller
     }
 
     // =========================================================
-    // GET: /Productos/Create
+    // GET: /Ventas/Create
     // Mostrar formulario de creación
     // =========================================================
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return View(new CrearProductoRequest());
+        var obj = new VentasCrearEncabezadoViewModel();
+        var respNombresUsuarios = await ListaNombreUsuarios();
+        obj.ListaUsuarios = respNombresUsuarios.Datos;
+        
+        return View(obj);
     }
 
     // =========================================================
-    // POST: /Productos/Create
-    // Enviar formulario al endpoint /Productos/Crear del API
+    // POST: /Ventas/Create
+    // Enviar formulario al endpoint /Ventas/Crear del API
     // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CrearProductoRequest model)
+    public async Task<IActionResult> Create(VentasCrearEncabezadoViewModel model)
     {
+        var respNombresUsuarios = await ListaNombreUsuarios();
+        model.ListaUsuarios = respNombresUsuarios.Datos;
+        
         if (!ModelState.IsValid)
         {
             return View(model);
@@ -227,12 +236,12 @@ public class VentasController : Controller
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("Productos/Crear", model);
+            var response = await _httpClient.PostAsJsonAsync("EncabezadoVentas/Crear", model);
 
             if (!response.IsSuccessStatusCode)
             {
                 var cuerpo = await response.Content.ReadAsStringAsync();
-                model.Mensaje = $"No se pudo crear el producto. Detalle técnico: {cuerpo}";
+                model.Mensaje = $"No se pudo crear el registro. Detalle técnico: {cuerpo}";
                 model.TipoMensaje = "danger";
                 return View(model);
             }
@@ -242,7 +251,7 @@ public class VentasController : Controller
 
             if (resultado == null)
             {
-                model.Mensaje = "Respuesta inválida del servidor al crear el producto.";
+                model.Mensaje = "Respuesta inválida del servidor al crear el registro.";
                 model.TipoMensaje = "danger";
                 return View(model);
             }
@@ -255,38 +264,38 @@ public class VentasController : Controller
                 return View(model); // Errores de dominio mostrados al usuario
             }
 
-            TempData["Mensaje"] = "Producto creado correctamente.";
+            TempData["Mensaje"] = "Registro creado correctamente.";
             TempData["TipoMensaje"] = "success";
             return RedirectToAction(nameof(Index));
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error de comunicación con el API al crear producto");
-            ModelState.AddModelError(string.Empty, "No se pudo comunicar con el servidor para crear el producto.");
+            _logger.LogError(ex, "Error de comunicación con el API al crear registro");
+            ModelState.AddModelError(string.Empty, "No se pudo comunicar con el servidor para crear el registro.");
             return View(model);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error inesperado al crear producto");
-            ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al crear el producto.");
+            _logger.LogError(ex, "Error inesperado al crear registro");
+            ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al crear el registro.");
             return View(model);
         }
     }
 
     // =========================================================
-    // GET: /Productos/Edit/5
-    // Cargar datos llamando a /Productos/Listar?idpro={id}
+    // GET: /Ventas/Edit/5
+    // Cargar datos llamando a /EncabezadoVentas/Listar?idpro={id}
     // =========================================================
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"Productos/Listar?idpro={id}");
+            var response = await _httpClient.GetAsync($"EncabezadoVentas/Listar?idpro={id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "No se pudo obtener el producto para editar.";
+                TempData["Error"] = "No se pudo obtener el registro para editar.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -295,14 +304,14 @@ public class VentasController : Controller
 
             if (resultado == null || !resultado.Exitoso || resultado.Datos == null)
             {
-                TempData["Error"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el producto." });
+                TempData["Error"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el registro." });
                 return RedirectToAction(nameof(Index));
             }
 
             var productoDto = resultado.Datos.FirstOrDefault();
             if (productoDto == null)
             {
-                TempData["Error"] = "No se encontró el producto.";
+                TempData["Error"] = "No se encontró el registro.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -317,21 +326,21 @@ public class VentasController : Controller
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error de comunicación con el API al obtener producto {Id} para edición", id);
-            TempData["Error"] = "No se pudo comunicar con el servidor para obtener el producto.";
+            _logger.LogError(ex, "Error de comunicación con el API al obtener registro {Id} para edición", id);
+            TempData["Error"] = "No se pudo comunicar con el servidor para obtener el registro.";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error inesperado al obtener producto {Id} para edición", id);
-            TempData["Error"] = "Ocurrió un error inesperado al obtener el producto.";
+            _logger.LogError(ex, "Error inesperado al obtener registro {Id} para edición", id);
+            TempData["Error"] = "Ocurrió un error inesperado al obtener el registro.";
             return RedirectToAction(nameof(Index));
         }
     }
 
     // =========================================================
-    // POST: /Productos/Edit/5
-    // Enviar formulario al endpoint /Productos/Actualizar/{id} del API
+    // POST: /Ventas/Edit/5
+    // Enviar formulario al endpoint /Ventas/Actualizar/{id} del API
     // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -339,7 +348,7 @@ public class VentasController : Controller
     {
         if (id != model.Id)
         {
-            ModelState.AddModelError(string.Empty, "El identificador del producto no coincide.");
+            ModelState.AddModelError(string.Empty, "El identificador del registro no coincide.");
             return View(model);
         }
 
@@ -350,12 +359,12 @@ public class VentasController : Controller
 
         try
         {
-            var response = await _httpClient.PutAsJsonAsync($"Productos/Actualizar/{id}", model);
+            var response = await _httpClient.PutAsJsonAsync($"EncabezadoVentas/Actualizar/{id}", model);
 
             if (!response.IsSuccessStatusCode)
             {
                 var cuerpo = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError(string.Empty, $"No se pudo actualizar el producto. Detalle técnico: {cuerpo}");
+                ModelState.AddModelError(string.Empty, $"No se pudo actualizar el registro. Detalle técnico: {cuerpo}");
                 return View(model);
             }
 
@@ -364,7 +373,7 @@ public class VentasController : Controller
 
             if (resultado == null)
             {
-                ModelState.AddModelError(string.Empty, "Respuesta inválida del servidor al actualizar el producto.");
+                ModelState.AddModelError(string.Empty, "Respuesta inválida del servidor al actualizar el registro.");
                 return View(model);
             }
 
@@ -378,26 +387,26 @@ public class VentasController : Controller
                 return View(model); // errores de dominio
             }
 
-            TempData["Mensaje"] = "Producto actualizado correctamente.";
+            TempData["Mensaje"] = "Registro actualizado correctamente.";
             TempData["TipoMensaje"] = "success";
             return RedirectToAction(nameof(Index));
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error de comunicación con el API al actualizar producto {Id}", id);
-            ModelState.AddModelError(string.Empty, "No se pudo comunicar con el servidor para actualizar el producto.");
+            _logger.LogError(ex, "Error de comunicación con el API al actualizar registro {Id}", id);
+            ModelState.AddModelError(string.Empty, "No se pudo comunicar con el servidor para actualizar el registro.");
             return View(model);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error inesperado al actualizar producto {Id}", id);
-            ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al actualizar el producto.");
+            _logger.LogError(ex, "Error inesperado al actualizar registro {Id}", id);
+            ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al actualizar el registro.");
             return View(model);
         }
     }
 
     // =========================================================
-    // GET: /Productos/Delete/5
+    // GET: /Ventas/Delete/5
     // Confirmación de eliminación
     // =========================================================
     [HttpGet]
@@ -405,11 +414,11 @@ public class VentasController : Controller
     {
         try
         {
-            var response = await _httpClient.GetAsync($"Productos/Listar?idpro={id}");
+            var response = await _httpClient.GetAsync($"Ventas/Listar?idpro={id}");
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Mensaje"] = "No se pudo obtener el producto para eliminar.";
+                TempData["Mensaje"] = "No se pudo obtener el registro para eliminar.";
                 TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
@@ -419,7 +428,7 @@ public class VentasController : Controller
 
             if (resultado == null || !resultado.Exitoso || resultado.Datos == null)
             {
-                TempData["Mensaje"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el producto." });
+                TempData["Mensaje"] = string.Join(" ", resultado?.Errores ?? new List<string> { "No se encontró el registro." });
                 TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
@@ -427,7 +436,7 @@ public class VentasController : Controller
             var productoDto = resultado.Datos.FirstOrDefault();
             if (productoDto == null)
             {
-                TempData["Error"] = "No se encontró el producto.";
+                TempData["Error"] = "No se encontró el registro.";
                 TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
@@ -443,21 +452,21 @@ public class VentasController : Controller
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error de comunicación con el API al obtener producto {Id} para eliminación", id);
-            TempData["Error"] = "No se pudo comunicar con el servidor para obtener el producto.";
+            _logger.LogError(ex, "Error de comunicación con el API al obtener registro {Id} para eliminación", id);
+            TempData["Error"] = "No se pudo comunicar con el servidor para obtener el registro.";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error inesperado al obtener producto {Id} para eliminación", id);
-            TempData["Error"] = "Ocurrió un error inesperado al obtener el producto.";
+            _logger.LogError(ex, "Error inesperado al obtener registro {Id} para eliminación", id);
+            TempData["Error"] = "Ocurrió un error inesperado al obtener el registro.";
             return RedirectToAction(nameof(Index));
         }
     }
 
     // =========================================================
-    // POST: /Productos/Delete/5
-    // Ejecutar eliminación llamando a /Productos/Eliminar/{id}
+    // POST: /Ventas/Delete/5
+    // Ejecutar eliminación llamando a /Ventas/Eliminar/{id}
     // =========================================================
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
@@ -465,12 +474,12 @@ public class VentasController : Controller
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"Productos/Eliminar/{id}");
+            var response = await _httpClient.DeleteAsync($"Ventas/Eliminar/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
                 var cuerpo = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = $"No se pudo eliminar el producto. Detalle técnico: {cuerpo}";
+                TempData["Error"] = $"No se pudo eliminar el registro. Detalle técnico: {cuerpo}";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -479,34 +488,37 @@ public class VentasController : Controller
 
             if (resultado == null)
             {
-                TempData["Error"] = "Respuesta inválida del servidor al eliminar el producto.";
+                TempData["Error"] = "Respuesta inválida del servidor al eliminar el registro.";
                 return RedirectToAction(nameof(Index));
             }
 
             if (!resultado.Exitoso)
             {
-                TempData["Error"] = string.Join(" ", resultado.Errores);
+                TempData["Mensaje"] = string.Join(" ", resultado.Errores);
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Exito"] = "Producto eliminado correctamente.";
+            TempData["Mensaje"] = "Registro eliminado correctamente.";
+            TempData["TipoMensaje"] = "success";
             return RedirectToAction(nameof(Index));
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Error de comunicación con el API al eliminar producto {Id}", id);
-            TempData["Error"] = "No se pudo comunicar con el servidor para eliminar el producto.";
+            _logger.LogError(ex, "Error de comunicación con el API al eliminar registro {Id}", id);
+            TempData["Error"] = "No se pudo comunicar con el servidor para eliminar el registro.";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error inesperado al eliminar producto {Id}", id);
-            TempData["Error"] = "Ocurrió un error inesperado al eliminar el producto.";
+            _logger.LogError(ex, "Error inesperado al eliminar registro {Id}", id);
+            TempData["Mensaje"] = "Ocurrió un error inesperado al eliminar el registro.";
+            TempData["TipoMensaje"] = "danger";
             return RedirectToAction(nameof(Index));
         }
     }
 
-    private async Task<ResultadoDto<VentasFiltroPaginadoViewModel> > ListaNombreUsuarios(VentasFiltroPaginadoViewModel obj)
+    private async Task<ResultadoDto<IEnumerable<SelectListItem>> > ListaNombreUsuarios()
     {
         var url = $"Usuarios/ListarNombres";
         
@@ -514,7 +526,7 @@ public class VentasController : Controller
         
         if (!response.IsSuccessStatusCode)
         {
-            return ResultadoDto<VentasFiltroPaginadoViewModel>.Failure("No se pudieron obtener los registros de vendedores."); ;
+            return ResultadoDto<IEnumerable<SelectListItem>>.Failure("No se pudieron obtener los registros de vendedores."); ;
         }
 
         var resultado =
@@ -522,23 +534,23 @@ public class VentasController : Controller
 
         if (resultado == null)
         {
-            return ResultadoDto<VentasFiltroPaginadoViewModel>.Failure("Respuesta inválida del servidor al listar registros.");
+            return ResultadoDto<IEnumerable<SelectListItem>>.Failure("Respuesta inválida del servidor al listar registros.");
         }
 
         if (!resultado.Exitoso)
         {
-            return ResultadoDto<VentasFiltroPaginadoViewModel>.Failure("Respuesta inválida del servidor al listar registros.");
+            return ResultadoDto<IEnumerable<SelectListItem>>.Failure("Respuesta inválida del servidor al listar registros.");
         }
 
         // Datos que devuelve la API
         var respApi = resultado.Datos ?? [];
 
-        obj.ListaUsuarios = respApi.Select(u => new SelectListItem
+        var salida = respApi.Select(u => new SelectListItem
         {
             Value = u.IdUs.ToString(),
             Text = u.Nombre
         });
         
-        return ResultadoDto<VentasFiltroPaginadoViewModel>.Success(obj); ;
+        return ResultadoDto<IEnumerable<SelectListItem>>.Success(salida); ;
     }
 }
