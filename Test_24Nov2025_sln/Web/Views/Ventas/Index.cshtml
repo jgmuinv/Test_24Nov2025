@@ -31,7 +31,7 @@
         <th class="col-3">Fecha</th>
         <th class="col-4">Vendedor</th>
         <th class="col-2">Total</th>
-        <th class="col-1">Productos</th>
+        <th class="col-1 text-center">Productos</th>
         <th class="col-2 text-center">Acción</th>
     </tr>
     </thead>
@@ -45,6 +45,7 @@
                 <td>@p.Fecha</td>
                 <td>@p.NombreVendedor</td>
                 <td>@Html.DisplayFor(_ => p.Total)</td>
+                <td class="text-center">@p.DetalleVenta?.Count</td>
                 <td class="text-center">
                     <a asp-action="Details" asp-route-id="@p.Idventa" class="btn btn-sm btn-info">Ver</a>
                     <a asp-action="Edit" asp-route-id="@p.Idventa" class="btn btn-sm btn-primary">Editar</a>

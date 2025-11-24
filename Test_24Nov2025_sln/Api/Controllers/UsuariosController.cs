@@ -26,7 +26,7 @@ public class UsuariosController : ControllerBase
     // GET: /Usuarios/ListarNombres
     // ============================
     [HttpGet]
-    public async Task<ActionResult<ResultadoDto<IReadOnlyList<NombreUsuariosDto?>>>> Listar(int? idus, string? usuario, string? nombre, CancellationToken ct)
+    public async Task<ActionResult<ResultadoDto<IReadOnlyList<NombreUsuariosDto?>>>> ListarNombres(int? idus, string? usuario, string? nombre, CancellationToken ct)
     {
         try
         {

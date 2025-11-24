@@ -1,11 +1,14 @@
-﻿using System.Net.Http;
+﻿using System.Collections;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Web;
 using Contratos.General;
 using Contratos.Productos;
 using Contratos.EncabezadoVentas;
 using Contratos.DetalleVentas;
+using Contratos.Usuarios;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Web.Models;
 
@@ -25,8 +28,10 @@ public class VentasController : Controller
     public async Task<IActionResult> Index()
     {
         var obj = new VentasFiltroPaginadoViewModel();
-        // var url = $"EncabezadoVentas/ListarPaginado?{query}";
-        return View(obj);
+
+        var respNombresUsuarios = await ListaNombreUsuarios(obj);
+        
+        return View(respNombresUsuarios.Datos);
     }
 
     // =========================================================
@@ -110,7 +115,8 @@ public class VentasController : Controller
             obj.Resultados = paginado;
             obj.Mensaje = "Filtrado realizado correctamente.";
             obj.TipoMensaje = "success";
-            return View(obj);
+            var respNombreUsuarios = await ListaNombreUsuarios(obj);
+            return View(respNombreUsuarios.Datos);
         }
         catch (HttpRequestException ex)
         {
@@ -497,5 +503,41 @@ public class VentasController : Controller
             TempData["Error"] = "Ocurrió un error inesperado al eliminar el producto.";
             return RedirectToAction(nameof(Index));
         }
+    }
+
+    private async Task<ResultadoDto<VentasFiltroPaginadoViewModel> > ListaNombreUsuarios(VentasFiltroPaginadoViewModel obj)
+    {
+        var url = $"Usuarios/ListarNombres";
+        
+        var response = await _httpClient.GetAsync(url);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            return ResultadoDto<VentasFiltroPaginadoViewModel>.Failure("No se pudieron obtener los registros de vendedores."); ;
+        }
+
+        var resultado =
+            await response.Content.ReadFromJsonAsync<ResultadoDto<List<NombreUsuariosDto?>>>();
+
+        if (resultado == null)
+        {
+            return ResultadoDto<VentasFiltroPaginadoViewModel>.Failure("Respuesta inválida del servidor al listar registros.");
+        }
+
+        if (!resultado.Exitoso)
+        {
+            return ResultadoDto<VentasFiltroPaginadoViewModel>.Failure("Respuesta inválida del servidor al listar registros.");
+        }
+
+        // Datos que devuelve la API
+        var respApi = resultado.Datos ?? [];
+
+        obj.ListaUsuarios = respApi.Select(u => new SelectListItem
+        {
+            Value = u.IdUs.ToString(),
+            Text = u.Nombre
+        });
+        
+        return ResultadoDto<VentasFiltroPaginadoViewModel>.Success(obj); ;
     }
 }
