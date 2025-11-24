@@ -16,6 +16,7 @@ public sealed class EncabezadoVenta
     public DateTime Fecha { get; set; } = DateTime.Now;
 
     public int Idvendedor { get; set; }
+    //public virtual Usuario Usuario { get; set; } = null!;
 
     public decimal Total { get; set; }
 

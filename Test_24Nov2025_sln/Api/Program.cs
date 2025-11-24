@@ -8,10 +8,12 @@ using Aplicacion.Interfaces;
 using Dominio.DetalleVentas;
 using Dominio.EncabezadoVentas;
 using Dominio.Productos;
+using Dominio.Usuarios;
 using Infraestructura.Data;
 using Infraestructura.Data.DetalleVentas;
 using Infraestructura.Data.EncabezadoVentas;
 using Infraestructura.Data.Productos;
+using Infraestructura.Data.Usuarios;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,6 +49,9 @@ builder.Services.AddScoped<IEncabezadoVentasService, EncabezadoVentasService>();
 
 builder.Services.AddScoped<IDetalleVentaRepository, DetalleVentaRepository>();
 builder.Services.AddScoped<IDetalleVentasService, DetalleVentasService>();
+
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuariosService, UsuariosService>();
 
 //// File storage
 // var uploadsPath = Path.Combine(builder.Environment.WebRootPath, "uploads", "productos");

@@ -25,6 +25,7 @@ public class VentasController : Controller
     public async Task<IActionResult> Index()
     {
         var obj = new VentasFiltroPaginadoViewModel();
+        // var url = $"EncabezadoVentas/ListarPaginado?{query}";
         return View(obj);
     }
 

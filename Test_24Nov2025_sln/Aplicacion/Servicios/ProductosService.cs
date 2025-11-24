@@ -196,13 +196,13 @@ public class ProductosService : IProductosService
     }
 
     // ==========================================
-    // Métodos Auxiliares Privados
+    // Métodos Auxiliares
     // ==========================================
 
     /// <summary>
     /// Mapea una entidad Producto a ProductoDto
     /// </summary>
-    private static ProductoDto MapearADto(Producto producto)
+    public static ProductoDto MapearADto(Producto producto)
     {
         return new ProductoDto
         {

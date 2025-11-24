@@ -208,6 +208,7 @@ public class EncabezadoVentasService : IEncabezadoVentasService
         {
             Idventa = entidad.Idventa,
             Idvendedor = entidad.Idvendedor,
+            NombreVendedor = entidad.Usuario.nombre,
             Fecha = entidad.Fecha,
             Total = entidad.Total,
             DetalleVenta = entidad.DetalleVenta

@@ -1,6 +1,7 @@
 ﻿// OBJETIVO: Gestionar la lógica de negocio en los productos 
 using Contratos.General;
 using Contratos.Productos;
+
 namespace Aplicacion.Interfaces;
 
 public interface IProductosService

@@ -13,6 +13,7 @@ public record EncabezadoVentaDto
     public DateTime Fecha { get; set; } = DateTime.Now;
 
     public int Idvendedor { get; set; }
+    public string NombreVendedor { get; set; }
     
     [DisplayFormat(DataFormatString = "{0:C}")]
     public decimal Total { get; set; }

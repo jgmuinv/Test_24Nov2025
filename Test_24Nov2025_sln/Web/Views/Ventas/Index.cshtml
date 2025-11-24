@@ -1,0 +1,59 @@
+﻿@model Web.Models.VentasFiltroPaginadoViewModel
+
+@{
+    ViewData["Title"] = "Ventas";
+}
+<h2>Ventas</h2>
+
+@* Si hay un mensaje lo muestra *@
+@if (TempData["Mensaje"] != null) {
+    <div class="alert alert-@TempData["TipoMensaje"]">@TempData["Mensaje"]</div>
+}
+@if (Model.Mensaje != null) {
+    <div class="alert alert-@Model.TipoMensaje">@Model.Mensaje</div>
+}
+
+<form asp-action="Index" method="post" class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label asp-for="IdVendedor" class="form-label"></label>
+        @Html.DropDownListFor(x => x.IdVendedor, Model.ListaUsuarios, "-- Todos --", new { @class = "form-select" })
+    </div>
+    <div class="col-md-2 d-flex gap-2 align-items-end">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        @Html.ActionLink("Limpiar", "Index","Ventas", null,new { @class = "btn btn-secondary" })
+        @Html.ActionLink("Nuevo","Create","Ventas",null,new{@class="btn btn-success"})
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th class="col-3">Fecha</th>
+        <th class="col-4">Vendedor</th>
+        <th class="col-2">Total</th>
+        <th class="col-1">Productos</th>
+        <th class="col-2 text-center">Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model?.Resultados?.Items != null)
+    {
+        @foreach (var p in Model.Resultados.Items)
+        {
+            if (p == null) continue;
+            <tr>
+                <td>@p.Fecha</td>
+                <td>@p.NombreVendedor</td>
+                <td>@Html.DisplayFor(_ => p.Total)</td>
+                <td class="text-center">
+                    <a asp-action="Details" asp-route-id="@p.Idventa" class="btn btn-sm btn-info">Ver</a>
+                    <a asp-action="Edit" asp-route-id="@p.Idventa" class="btn btn-sm btn-primary">Editar</a>
+                    <form asp-action="Delete" asp-route-id="@p.Idventa" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?');">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }        
+    }
+    </tbody>
+</table>
